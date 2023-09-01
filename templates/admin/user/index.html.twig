@@ -1,0 +1,335 @@
+{% extends 'base.html.twig' %}
+
+{% set title = 'Ma Carte administration Utilisateurs' %}
+
+{% set pageTitle = {
+    pageTitleH1 : 'Administration des '~nbUsers~' utilisateurs',
+} %}
+
+{% block breadcrumb %}
+    <div class="container-content container-content--smaller">
+        <nav class="breadcrumb-wrapper" role="navigation" aria-label="Fil d'ariane">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('default_home') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('admin_index') }}">Administration</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Utilisateurs</li>
+            </ol>
+        </nav>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="container-content container-content--smaller">
+    <div class="js-accordion" data-accordion-prefix-classes="o">
+        <h3 id="accordeon-georoom" class="js-accordion__header">Rechercher</h3>
+        <div class="js-accordion__panel">
+            <div class="wysiwyg">
+                <form>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <div class="float-target-parent">
+                                    <label for="search-input">Login, email ou nom public contient </label>
+                                    <input type="text" id="search-input" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="role-input">Rôle</label>
+                                <select class="form-control" id="role-input" name="role">
+                                    <option value="">Non défini</option>
+                                    <option value="ROLE_USER">Utilisateur</option>
+                                    <option value="ROLE_EDUGEO_ELEVE">Elève</option>
+                                    <option value="ROLE_EDUGEO_PROF">Professeur</option>
+                                    <option value="ROLE_SUPER_ADMIN">Administrateur</option>
+                                </select>
+                            </div>
+                            <div class="form-group form-group-custom-control">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="search-locked">
+                                    <label class="custom-control-label" for="search-locked">Comptes bloqués uniquement</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <div class="float-target-parent">
+                                    <label for="id-input">Id </label>
+                                    <input type="number" id="id-input" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="limit-input">Nombre de résultats</label>
+                                <select class="form-control" id="limit-input" name="role">
+                                    <option value="15">15</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-active-effect btn-width--md btn--plain btn--univers-carto" id="send-search">Rechercher</button>
+                </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="wysiwyg">
+        <p><span id="nb-users"></span> utilisateurs trouvés</p>
+        <div class="table-responsive ">
+            <table id="result">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Login</th>
+                        <th>Email</th>
+                        <th>Nom public</th>
+                        <th>Role</th>
+                        <th>#</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <nav aria-label="Pagination" role="navigation" id="research-pagination">
+        <ul class="pagination justify-content-center align-items-baseline"></ul>
+    </nav>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+
+<script>
+    $(document).ready(function(){
+        getSearchUsers();
+    })
+    var currentPageResearch = 1;
+
+    $('#send-search').on('click', function(){
+        currentPageResearch = 1;
+        getSearchUsers();
+    })
+
+    function getSearchUsers(){
+        $.ajax({
+            url: "{{ path('admin_api_user_research') }}",
+            method: "GET",
+            data: {
+                id: $('#id-input').val(),
+                query: $('#search-input').val(),
+                role: $('#role-input').val(),
+                locked: $('#search-locked').is(':checked') ? true : false,
+                limit: $('#limit-input').val(),
+                offset: $('#limit-input').val() * (currentPageResearch - 1),
+            },
+            success: function(response){
+                $('#nb-users').text(response.count)
+
+                displayPagination(currentPageResearch, Math.ceil(response.count / response.limit));
+                let $tbody = $('#result tbody').html('');
+
+                for(let i in response.users){
+                    displayUser(response.users[i], $tbody)
+                }
+            }
+        });
+    }
+
+    function displayUser(user, $tbody){
+        $tr = $('<tr>')
+            .attr('data-user-id', user.id)
+            .attr('data-user-locked', user.locked)
+            .appendTo($tbody)
+        ;
+        if(user.locked){
+            $tr.addClass('table-danger');
+        }
+        $('<td>').text(user.id).appendTo($tr);
+        $('<td>').text(user.username.length > 20 ? user.username.slice(0, 20) + '...' : user.username ).attr('title', user.username).appendTo($tr);
+        $('<td>').text(user.email.length > 20 ? user.email.slice(0, 20) + '...' : user.email ).attr('title', user.email).appendTo($tr);
+        $('<td>').text(user.public_name.length > 20 ? user.public_name.slice(0, 20) + '...' : user.public_name ).attr('title', user.public_name).appendTo($tr);
+        let roles = user.roles.filter(function(role){
+            if(role == 'ROLE_USER'){
+                return false;
+            }
+            if(role == 'ROLE_FORCEPASSWORDCHANGE'){
+                return false;
+            }
+            return true;
+        }).join(', ');
+        $('<td>').text(roles).appendTo($tr);
+        $tdActions = $('<td>').appendTo($tr);
+        
+        $('<a>')
+            .addClass('btn')
+            .addClass('btn-sm')
+            .addClass('btn-info')
+            .html('<i class="fa fa-file-text-o" aria-hidden="true"></i>')
+            .attr('href', Routing.generate('admin_user_view', { id: user.id }) )
+            .attr('target', '_blank')
+            .attr('title', "Voir l'utilisateur")
+            .appendTo($tdActions)
+        ;
+    }
+
+    function displayPagination(currentPage, lastPage){
+        $nav = $('#research-pagination ul').html('');
+        if(lastPage < 2){
+            return;
+        }
+        if(currentPage > 2){
+            /*
+            <li class="page-item page-first">
+                <a class="page-link" href="#" title="Première page">
+                    <span aria-hidden="true" class="icon-double-angle-left"></span>
+                    <span class="sr-only">Première page</span>
+                </a>
+            </li>
+            */
+            $li = $('<li>').addClass('page-item').addClass('page-first').appendTo($nav);
+            $a = $('<a>')
+                .addClass('page-link')
+                .attr('href', '#')
+                .attr('title', 'Première page')
+                .appendTo($li)
+                .on('click', function(){
+                    currentPageResearch = 1;
+                    getSearchUsers();
+                })
+            ;
+            $('<span>').addClass("icon-double-angle-left").attr('aria-hidden', 'true').appendTo($a);
+            $('<span>').addClass("sr-only").text('Première page').appendTo($a);
+        }
+
+        if(currentPage > 1){
+            /*
+            <li class="page-item page-prev">
+                <a class="page-link" href="#" title="Page précédente">
+                    <span aria-hidden="true" class="icon-angle-left"></span>
+                    <span class="sr-only">Page précédente</span>
+                </a>
+            </li>
+            */
+            $li = $('<li>').addClass('page-item').addClass('page-prev').appendTo($nav);
+            $a = $('<a>')
+                .addClass('page-link')
+                .attr('href', '#')
+                .attr('title', 'Page précédente')
+                .appendTo($li)
+                .on('click', function(){
+                    currentPageResearch = currentPageResearch - 1;
+                    getSearchUsers();
+                })
+            ;
+            $('<span>').addClass("icon-angle-left").attr('aria-hidden', 'true').appendTo($a);
+            $('<span>').addClass("sr-only").text('Page précédente').appendTo($a);
+        }
+
+        if(currentPage > 1){
+            /*
+                <li class="page-item">
+                    <a class="page-link" href="#">1</a>
+                </li>
+            */
+            $li = $('<li>').addClass('page-item').appendTo($nav);
+            $('<a>')
+                .addClass('page-link')
+                .attr('href', '#')
+                .text(currentPage - 1)
+                .appendTo($li)
+                .on('click', function(){
+                    currentPageResearch = currentPageResearch - 1;
+                    getSearchUsers();
+                })
+            ;
+        }
+        /*
+            <li class="page-item active">
+                <span class="page-link" aria-current="page">
+                    2 <span class="sr-only">(page active)</span>
+                </span>
+            </li>
+        */
+        $li = $('<li>').addClass('page-item').addClass('active').appendTo($nav);
+        $('<span>')
+            .addClass('page-link')
+            .attr('aria-current', 'page')
+            .html( currentPage + '<span class="sr-only">(page active)</span>')
+            .appendTo($li)
+        ;
+
+        if(currentPage < lastPage){
+            /*
+                <li class="page-item">
+                    <a class="page-link" href="#">3</a>
+                </li>
+            */
+            $li = $('<li>').addClass('page-item').appendTo($nav);
+            $('<a>')
+                .addClass('page-link')
+                .attr('href', '#')
+                .text(currentPage + 1)
+                .appendTo($li)
+                .on('click', function(){
+                    currentPageResearch = currentPageResearch + 1;
+                    getSearchUsers();
+                })
+            ;
+        }
+        if(currentPage < lastPage){
+            /*
+            <li class="page-item page-next">
+                <a class="page-link" href="#" title="Page suivante">
+                    <span aria-hidden="true" class="icon-angle-right"></span>
+                    <span class="sr-only">Page suivante</span>
+                </a>
+            </li>
+            */
+            $li = $('<li>').addClass('page-item').addClass('page-prev').appendTo($nav);
+            $a = $('<a>')
+                .addClass('page-link')
+                .attr('href', '#')
+                .attr('title', 'Page précédente')
+                .appendTo($li)
+                .on('click', function(){
+                    currentPageResearch = currentPageResearch + 1;
+                    getSearchUsers();
+                })
+            ;
+            $('<span>').addClass("icon-angle-right").attr('aria-hidden', 'true').appendTo($a);
+            $('<span>').addClass("sr-only").text('Page précédente').appendTo($a);
+        }
+
+        if(currentPage < lastPage - 1){
+            /*
+            <li class="page-item page-last">
+                <a class="page-link" href="#" title="Dernière page">
+                    <span aria-hidden="true" class="icon-double-angle-right"></span>
+                    <span class="sr-only">Dernière page</span>
+                </a>
+            </li>
+            */
+            $li = $('<li>').addClass('page-item').addClass('page-last').appendTo($nav);
+            $a = $('<a>')
+                .addClass('page-link')
+                .attr('href', '#')
+                .attr('title', 'Dernière page')
+                .appendTo($li)
+                .on('click', function(){
+                    currentPageResearch = lastPage;
+                    getSearchUsers();
+                })
+            ;
+            $('<span>').addClass("icon-double-angle-right").attr('aria-hidden', 'true').appendTo($a);
+            $('<span>').addClass("sr-only").text('Dernière page').appendTo($a);
+        }
+    }
+
+</script>
+    
+{% endblock %}

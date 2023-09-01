@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% set title = 'Ma Carte' %}
+
+{% set pageTitle = {
+    pageTitleH1 : '404',
+} %}
+
+{% block body %}
+<div class="compass"></div><div class="info wysiwyg">
+    <h2>Petite erreur d'orientation...</h2>
+    <p>
+        Si vous avez suivi un lien quelque part sur l'une de nos pages, merci de nous le <a href="{{ path('default_contact') }}">signaler</a> pour que nous puissions corriger cette erreur.
+        Sinon, essayez de revenir au <a href="{{ path('default_home') }}">Portail Ma Carte IGN</a> et de naviguer à partir de là.
+    </p>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('build/error404.js') }}"></script>
+{% endblock %}

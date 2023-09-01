@@ -1,0 +1,204 @@
+{% extends 'base.html.twig' %}
+
+{% set title = 'Ma Carte administration Utilisateurs' %}
+
+{% set pageTitle = {
+    pageTitleH1 : map.title,
+} %}
+
+{% block breadcrumb %}
+    <div class="container-content container-content--smaller">
+        <nav class="breadcrumb-wrapper" role="navigation" aria-label="Fil d'ariane">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('default_home') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('admin_index') }}">Administration</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('admin_map_index') }}">Cartes</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Voir {{ map.title }}</li>
+            </ol>
+        </nav>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+.swal2-popup {
+    font-size: 1em!important;
+}
+span[data-attr="img_url"] img{
+    width: 95%;
+}
+#view-iframe{
+    height: 50rem;
+}
+#view-iframe iframe{
+    width: 100%;
+    height: 100%;
+}
+.hide{
+display: none;
+}
+#alert-map-invalid{
+    width: unset;
+    transform: unset;
+    left: unset;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container-content container-content--smaller">
+    <div class="wysiwyg">
+        <div class="row">
+            <div class="col-2">
+                <button id="delete-map" class="btn btn-danger">Supprimer</button>  
+            </div>
+            <div class="col-10">
+                <div id="alert-map-invalid" class="alert alert-danger {% if map.valid %}hide{% endif %}">
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Carte invalide !!
+                </div>
+            </div>
+        </div>
+        <table id="map-details">
+            <tr>
+                <td>Id</td>
+                <td>{{ map.id }}</td>
+            </tr>
+            <tr>
+                <td>Visualisation</td>
+                <td data-attr="view_url"></td>
+            </tr>
+            <tr>
+                <td>Modification</td>
+                <td>
+                    <span data-attr="edit_url"></span>
+                    <button class="btn btn-sm btn--ghost btn--univers-carto pull-right" data-attr="new_id_edit">
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>Titre</td>
+                <td>
+                    <span data-attr="title">{{ map.title }}</span>
+                    <button class="btn btn-sm btn--ghost btn--univers-carto pull-right" data-attr="title">
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>Description</td>
+                <td>
+                    <span data-attr="description">{{ map.description }}</span>
+                    <button class="btn btn-sm btn--ghost btn--univers-carto pull-right" data-attr="description">
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>Auteur</td>
+                <td>
+                    <a href="{{ path('admin_user_view', { id:map.creator.id }) }}">{{ map.creator.publicName }}</a>
+                </td>
+            </tr>
+            <tr>
+                <td>Modificateur</td>
+                <td>
+                    <span data-attr='editor'>
+                        {% if map.editor %}
+                            <a href="{{ path('admin_user_view', { id:map.editor.id }) }}">{{ map.editor.publicName }}</a>
+                        {% endif %}
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td>Date Maj</td>
+                <td><span data-attr="updated_at">{{ map.updatedAt|date('Y-m-d') }}</span></td>
+            </tr>
+            <tr>
+                <td>Theme</td>
+                <td>
+                    <span data-attr="theme">
+                        {% if map.theme %}
+                            {{ map.theme.name }}
+                        {% endif %}
+                    </span>
+                    <button class="btn btn-sm btn--ghost btn--univers-carto pull-right" data-attr="theme">
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>Type</td>
+                <td>{{ map.type }}</td>
+            </tr>
+            <tr>
+                <td>Premium</td>
+                <td>{{ map.premium }}</td>
+            </tr>
+            <tr>
+                <td>Publication</td>
+                <td>
+                    <span data-attr='share'>{{ map.share }}</span>
+                    <button class="btn btn-sm btn--ghost btn--univers-carto pull-right" data-attr="share">
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>Active</td>
+                <td>
+                    {% if map.active %}
+                        <div class="icon-check" aria-hidden="true">
+                    {% else %}
+                        <div class="icon-close" aria-hidden="true">
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>Valide</td>
+                <td>
+                    <label class="switch">
+                        <input 
+                            type="checkbox" 
+                            {% if map.valid %}checked="" {% endif %} 
+                            data-attr="valid"
+                        >
+                        <span class="slider round"></span>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>Nb de vues</td>
+                <td>{{ map.nbView }} </td>
+            </tr>
+            <tr>
+                <td>Image</td>
+                <td>
+                    <span data-attr="img_url">
+                        {% if map.imgUrl %}
+                            <img src="{{ map.imgUrl }}" alt="illustrative image">
+                        {% endif %}
+                    </span>
+                    <button class="btn btn-sm btn--ghost btn--univers-carto pull-right" data-attr="img_url">
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                    </button>
+                </td>
+            </tr>
+        </table>
+
+        <div id="view-iframe"></div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+
+<script> 
+    var map = {{ mapJson|raw }};
+    var themes = {{ themes|raw }};
+
+    maCarteOptions = {{ configApi|raw }};
+    var publicName = "{{ app.user.publicName|raw }}";
+</script>
+<script  src="{{ asset('build/admin_map_view.js') }}"></script>
+
+{% endblock %}

@@ -1,0 +1,21 @@
+# Read the documentation at https://github.com/thephpleague/flysystem-bundle/blob/master/docs/1-getting-started.md
+flysystem:
+    storages:
+        default.storage:
+            # NE PAS MODIFIER pour le stockage cloud
+            # fichiers par défaut, stockés dans le projet
+            adapter: 'local'
+            options:
+                directory: '%kernel.project_dir%/data'
+        map.storage:
+            adapter: 'asyncaws'
+            options:
+                client: 's3_client' # The service ID of the AsyncAws\S3\S3Client instance
+                bucket: '%env(S3_BUCKET)%'
+                prefix: 'macarte/data'
+        image.storage:
+            adapter: 'asyncaws'
+            options:
+                client: 's3_client' # The service ID of the AsyncAws\S3\S3Client instance
+                bucket: '%env(S3_BUCKET)%'
+                prefix: 'macarte/images'

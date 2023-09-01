@@ -1,0 +1,83 @@
+<html>
+    <head>
+        <style>
+.table {
+    margin-bottom: 20px;
+}
+table {
+    background-color: transparent;
+    max-width: 100%;
+}
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+.table-striped > tbody > tr:nth-child(2n+1) > td, .table-striped > tbody > tr:nth-child(2n+1) > th {
+    background-color: #f9f9f9;
+}
+.table thead > tr > th, .table tbody > tr > th, .table tfoot > tr > th, .table thead > tr > td, .table tbody > tr > td, .table tfoot > tr > td {
+    border-top: 1px solid #dddddd;
+    line-height: 1.42857;
+    padding: 4px 15px;
+    vertical-align: top;
+}
+td, th {
+    padding: 0;
+}
+        </style>
+    </head>
+    <body>
+        {% set report = false %}
+        {% if action == 'report' %}
+            {% set report = true %}
+        {% endif %}
+        {% if report %}
+        <p>Vous nous avez signalé du contenu inapproprié. Nos équipes traitent ce signalement dans les plus brefs délais</p>
+        {% else %}
+            
+        {% endif %}
+        <p>Veuillez trouver ci-après le résumé de votre {% if report %}signalement{% else %}demande{% endif %}</p>
+
+        <table class="table table-striped">
+            <tr>
+                <td>Date</td>
+                <td>{{ "now"|date("d/m/Y") }} </td>
+            </tr>
+            <tr>
+                <td>Nom</td>
+                <td>{{ data['user'] }}</td>
+            </tr>
+            {% if data['userID'] is defined and data['userID'] is not null %}
+                <tr>
+                    <td>Identifiant du compte</td>
+                    <td>{{ data['userID'] }}</td>
+                </tr>
+            {% endif %}
+            <tr>
+                <td>Email</td>
+                <td>{{ data['email'] }}</td>
+            </tr>
+            <tr>
+                <td>Message</td>
+                <td>{{ data['content'] }}</td>
+            </tr>
+            {% if report %}
+            <tr>
+                <td>Carte concernée</td>
+                <td>
+                    {% if map.type == 'storymap' %}
+                        <a href="{{ url('storymap_default_view', { idUniqueIFrame : map.idUniqueIFrame, titre : map.titre } ) }}">{{ url('storymap_default_view', { idUniqueIFrame : map.idUniqueIFrame, titre : map.titre } ) }}</a>
+                    {% else %}
+                        <a href="{{ url('maCarte_default_view', { idUniqueIFrame : map.idUniqueIFrame, titre : map.titre } ) }}">{{ url('maCarte_default_view', { idUniqueIFrame : map.idUniqueIFrame, titre : map.titre } ) }}</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td>Application</td>
+                <td>{{ data['service'] }}</td>
+            </tr>
+        </table>
+    </body>
+    
+</html>

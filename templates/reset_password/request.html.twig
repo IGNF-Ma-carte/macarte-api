@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+{% form_theme requestForm "@IgnCharte/form/form_theme.html.twig" %}
+
+{% block title %}Reset your password{% endblock %}
+
+{% set pageTitle = {
+    pageTitleH1 : 'Récupérer mon mot de passe',
+} %}
+
+{% block body %}
+    {% for flashError in app.flashes('reset_password_error') %}
+        <div class="alert alert-danger" role="alert">{{ flashError }}</div>
+    {% endfor %}
+
+    {{ form(requestForm) }}
+
+{% endblock %}

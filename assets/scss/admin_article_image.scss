@@ -1,0 +1,29 @@
+.list-medias li.mc-select .li-actions{
+    display: block;
+    z-index: 1;
+}
+
+.list-medias li .li-actions {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    box-shadow: 1px 1px 2px 1px rgba(0,0,0,.5);
+    display: none;
+    border-radius: 0 0 1em 1em;
+    padding: 0 .5em;
+    color: #788089;
+    
+    span {
+        padding: 0 .5em;
+        display: initial;
+        font-weight: bold;
+        
+        &:hover{
+            color: #307ccd;
+        }
+
+
+    }
+}

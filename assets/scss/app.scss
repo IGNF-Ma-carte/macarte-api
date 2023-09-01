@@ -1,0 +1,237 @@
+@import './components/alert.scss';
+@import './components/badge.scss';
+@import './components/button-toggle.scss';
+@import './components/button.scss';
+@import './components/teaser.scss';
+
+/**************************/
+/* mise en forme markdown */
+/**************************/
+.center{
+    text-align: center;
+}
+
+[data-mdarticle] h1{
+    padding-top: 5rem!important;
+}
+
+header.o-page-title{
+    h1{
+        max-width: initial;
+    }
+}
+
+form{
+    .captcha{
+        margin-top: calc(50px + 3rem);
+        .captcha_image{
+            position: absolute;
+            top: -50px;
+        }
+        .captcha_reload{
+            position: absolute;
+            top: -25px;
+            transform: translateY(-50%);
+            left: 150px;
+        }
+    }
+}
+
+li{
+    &.connected, 
+    &.disconnected {
+        display: none;
+    }
+    &.connecting a:before {
+        content: '\f110'; // spinner
+        font-family: FontAwesome;
+    }
+}
+
+[data-connected="connected"] {
+    li{
+        &.connected{
+            display: block;
+        }
+        &.disconnected{
+            display:none;
+        }
+    }
+}
+
+[data-connected="disconnected"] {
+    li{
+        &.connected{
+            display: none;
+        }
+        &.disconnected{
+            display:block;
+        }
+    }
+}
+
+[data-connected] {
+    li{
+        &.connecting{
+            display:none;
+        }
+
+    }
+}
+
+.header-principal__lang .navbar-nav--portails .user-menu{
+    position: fixed;
+    right: 7rem;
+    top: 6rem;
+}
+
+/* dans menu gauche si petit écran */
+.header-principal__nav{
+
+    .navbar-nav--portails {
+        position: relative;
+        .user-menu{
+            position: absolute;
+            left: 10rem;
+            bottom: 2rem;
+            max-width: 23rem;
+            div{
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+    }
+}
+
+.navbar-nav--portails{
+    .user-menu{
+        &.hide{
+            display: none;
+        }
+        z-index: 1;
+        background-color: #fff;
+        border: 0.1rem solid rgba(0,0,0,.15);
+        padding: 0.5rem 0;
+        min-width: 10rem;
+
+        li{
+            display: block;
+            padding: 0.25em 1.5em;
+            cursor: pointer;
+            // color: #788089;
+
+            &.summary{
+                cursor: default;
+                &:hover{
+                    background-color: inherit;
+                }
+            }
+
+            &.separator{
+                height: 1px;
+                background-color: rgba(0,0,0,.15);
+                padding: 0;
+                margin: 0.5rem 0;
+                pointer-events: none;
+            }
+            &:hover{
+                background-color: #f4f6f8;
+            }
+
+            a{
+                color: #788089;
+                display: block;
+            }
+        }
+    }
+}
+
+.navbar-nav .public-name{
+    max-width: 20em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.navbar-nav .user-show-menu{
+    position: relative;
+    margin: 0 1.5rem 0 0.5rem;
+    &:before{
+        content: "";
+        border: 0.5rem solid transparent;
+        border-top-color: currentcolor;
+        border-bottom: 0;
+        height: auto!important;
+        position: absolute;
+        left: 0;
+        top: 55%;
+        transform: translateY(-50%);
+    }
+}
+
+/* surcharge de la charte pour placement des iframes */
+[data-mdarticle]{
+    .embed-responsive-16by9:before{
+        padding-top: 0!important;
+        background-color:red;
+    }
+
+    .embed-responsive iframe{
+        position: unset!important;
+    }
+}
+
+.alert{
+    width: 100vw;
+    left: 50%;
+    position: relative;
+    transform: translateX(-50%);
+    margin-bottom: 0;
+    text-align: center;
+    font-size: 1.5rem;
+
+    i.fa{
+        font-size: 1.5em;
+        margin-right: 1rem;
+    }
+}
+
+// affichage de l'image edugeo si prof ou eleve
+[data-user-role*=EDUGEO]{
+    header.header{
+        .header-principal--left{
+            .header-principal__logo{
+                .header-principal__name{
+                    width: 0;
+                    color: transparent!important;
+                    padding: 0;
+                    margin: 0;
+                    &:after{
+                        content: "";
+                        position: absolute;
+                        background: url('../images/logo-edugeo.png') no-repeat 50% 50%;
+                        background-size: 87% auto;
+                        height: 3em;
+                        width: 11rem;
+                        // border-left: 1px solid #dde1e6;
+                        top: 50%;
+                        transform: translate(20%,-50%);
+                    }
+                }
+            }
+        }
+    }
+
+    .footer{
+        & > div > * {
+            display: none;
+        }
+        .footer-contentinfo{
+            display: block;
+        }
+    }
+    .subfooter{
+        display: none;
+    }
+}

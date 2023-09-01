@@ -1,0 +1,78 @@
+{% if category == constant('App\\Entity\\Article::CATEGORY_HOME_TITLE') 
+    or category == constant('App\\Entity\\Article::CATEGORY_EDUGEO_TITLE')
+%}
+<div>
+    Seul l'article de plus petite position est pris en compte
+</div>
+{% endif %}
+
+<table>
+    <thead>
+        <tr>
+            <th>Position</td>
+            <th>Titre</td>
+            <th>Modifié le</td>
+            <th class="actions">Actions</td>
+        </tr>
+    </thead>
+    <tbody>
+    {% for article in articles %}
+        <tr 
+            style="{% if article.visible %}font-weight:bold;{% else %}font-style: italic;{% endif %}" 
+            data-title="{{ article.title }}"
+            data-id="{{ article.id }}"
+        >
+            <td>{{ article.position }}</td>
+            <td>{{ article.title }}</td>
+            <td>{{ article.updatedAt|date('d-m-Y') }} par {{ article.updatedBy.username }}</td>
+            <td>
+                <a href="{{ path('admin_article_move_up', {id: article.id}) }}" 
+                    class="btn btn-sm btn-info {% if article.position == loop.first %}disabled{% endif %}"
+                    title="Monter d'une position"
+                >
+                    <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                </a>
+
+                <a href="{{ path('admin_article_move_down', {id: article.id}) }}" 
+                    class="btn btn-sm btn-info  {% if article.position == loop.last %}disabled{% endif %}"
+                    title="Descendre d'une position"
+                >
+                    <i class="fa fa-arrow-down" aria-hidden="true"></i>
+                </a>
+                
+                {% if category == 'news' %}
+                <a href="{{ path('admin_article_toggle', {id: article.id}) }}" 
+                    class="btn btn-sm btn-info"
+                    title="{% if article.visible %}Ne plus afficher{% else %}Afficher{% endif %}"
+                >
+                    <i class="fa {% if article.visible %}fa-eye-slash{% else %}fa-eye{% endif %}" aria-hidden="true"></i>
+                </a>
+                {% endif %}
+                <a href="{{ path('admin_article_view', {id: article.id}) }}" 
+                    class="btn btn-sm btn-info"
+                    title="Visualiser"
+                >
+                    <i class="fa fa-file-text" aria-hidden="true"></i>
+                </a>
+
+                <a href="{{ path('admin_article_edit', {id: article.id}) }}" 
+                    class="btn btn-sm btn-warning"
+                    title="Modifier"
+                >
+                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                </a>
+                <select class="change-status" data-article="{{ article.id }}">
+                    {% for value, key in article.getStatuses() %}
+                        <option value="{{ key }}" {% if article.status == key %}selected{% endif %}>{{ value }}</option>
+                    {% endfor %}
+                </select>
+
+                <button class="btn btn-sm btn-danger">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                </button>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+

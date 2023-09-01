@@ -1,0 +1,441 @@
+{% extends 'base.html.twig' %}
+
+
+{% set title = 'Ma Carte administration Utilisateurs' %}
+
+{% set pageTitle = {
+    pageTitleH1 : 'Voir '~user.username,
+} %}
+
+{% block breadcrumb %}
+    <div class="container-content container-content--smaller">
+        <nav class="breadcrumb-wrapper" role="navigation" aria-label="Fil d'ariane">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('default_home') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('admin_index') }}">Administration</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('admin_user_index') }}">Utilisateurs</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Modifier {{ user.username }}</li>
+            </ol>
+        </nav>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .swal2-popup {
+        font-size: 1em!important;
+    }
+    span[data-attr="profile_picture"]{
+        display:inline-block;
+    }
+    span[data-attr="profile_picture"] img{
+        width:100%;
+        max-height:90%;
+    }
+    .fa-pencil-square-o{
+        font-size:1.2em;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container-content container-content--smaller">
+    <div class="wysiwyg">
+        <div class="row">
+            <div class="col-5">
+                <a  class="btn btn-active-effect btn-width--md btn--plain btn--univers-carto" href="{{ path('admin_map_index', {user : user.publicName}) }}">Voir les cartes</a>
+                <a  class="btn btn-active-effect btn-width--md btn--plain btn--univers-carto" href="{{ path('admin_media_index', {user : user.username}) }}">Voir les images</a>
+            </div>
+            <div class="col-5">
+                <div id="alert-user-locked" class="alert alert-danger" {% if not user.locked %}style="display:none"{% endif %}>
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> L'utilisateur est bloqué
+                </div>
+            </div>
+            <div class="col-2">
+                <button id="delete-user" class="btn btn-danger pull-right">Supprimer</button>
+            </div>
+        </div>
+        {# <div class="table-responsive "> #}
+            <table class="table-hover">
+                <tr>
+                    <td>Id</td>
+                    <td>{{ user.id }}</td>
+                </tr>
+                <tr>
+                    <td>Nom d'utilisateur</td>
+                    <td>
+                        <span data-attr="username">{{ user.username }}</span>
+                        <button class="btn btn-sm btn--ghost btn--univers-carto pull-right" data-attr="username">
+                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td>
+                        <span data-attr="email">{{ user.email }}</span>
+                        <button class="btn btn-sm btn--ghost btn--univers-carto pull-right" data-attr="email">
+                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Première connexion</td>
+                    <td>{{ user.registeredAt|date('d-m-Y') }}</td>
+                </tr>
+                <tr>
+                    <td>Dernière connexion</td>
+                    <td>{{ user.lastLogin|date('d-m-Y') }}</td>
+                </tr>
+                <tr>
+                    <td>Roles (hors "Utilisateur")</td>
+                    <td>
+                        <span data-attr="roles">
+                            {% for role in user.roles %} 
+                                {% if not(role in ['ROLE_FORCEPASSWORDCHANGE', 'ROLE_USER']) %}
+                                    {{ roles[role] }} - 
+                                {% endif %}
+                            {% endfor %}
+                        </span>
+                        <button class="btn btn-sm btn--ghost btn--univers-carto pull-right" data-attr="roles">
+                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Peut agir ( non Bloqué)</td>
+                    <td>
+                        <label class="switch">
+                            <input 
+                                type="checkbox" 
+                                {% if not user.isLocked %}checked="" {% endif %} 
+                                data-attr="locked"
+                            >
+                            <span class="slider round"></span>
+                        </label>
+                    </td>
+                <tr>
+                    <td>Actif</td>
+                    <td>
+                    {% if user.enabled %}
+                        <div class="icon-check" aria-hidden="true">
+                    {% else %}
+                        <div class="icon-close" aria-hidden="true">
+                    {% endif %}
+                    </td>
+                </tr>
+                </tr>
+                <tr>
+                    <td>Nom public</td>
+                    <td>
+                        <span data-attr="public_name">{{ user.publicName }}</span>
+                        <button class="btn btn-sm btn--ghost btn--univers-carto pull-right" data-attr="public_name">
+                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Identifiant public</td>
+                    <td>
+                        <span data-attr="public_id">{{ user.publicId }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Présentation</td>
+                    <td>
+                        <span data-attr="presentation">{{ user.presentation }}</span>
+                        <button class="btn btn-sm btn--ghost btn--univers-carto pull-right" data-attr="presentation">
+                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Facebook</td>
+                    <td>
+                        <span data-attr="facebook_account">
+                        {% if user.facebookAccount %}
+                            <a href="https://www.facebook.com/{{ user.facebookAccount }}" target="_blank">
+                                https://www.facebook.com/{{ user.facebookAccount }}
+                            </a>
+                        {% endif %}
+                        </span>
+                        <button class="btn btn-sm btn--ghost btn--univers-carto pull-right" data-attr="facebook_account">
+                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Twitter</td>
+                    <td>
+                        <span data-attr="twitter_account">
+                            {% if user.twitterAccount %}
+                            <a href="https://twitter.com/{{ user.twitterAccount }}" target="_blank">
+                                https://twitter.com/{{ user.twitterAccount }}
+                            </a>
+                            {% endif %}
+                        </span>
+                        <button class="btn btn-sm btn--ghost btn--univers-carto pull-right" data-attr="twitter_account">
+                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Linked In</td>
+                    <td>
+                        <span data-attr="linkedin_account">
+                            {% if user.linkedinAccount %}
+                            <a href="https://linkedin.com/in/{{ user.linkedinAccount }}" target="_blank">
+                                https://linkedin.com/in/{{ user.linkedinAccount }}
+                            </a>
+                            {% endif %}
+                        </span>
+                        <button class="btn btn-sm btn--ghost btn--univers-carto pull-right" data-attr="linkedin_account">
+                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Image de profil</td>
+                    <td>
+                        <span data-attr="profile_picture">
+                            {% if user.profilePicture %}
+                                <img src="{{ user.profilePicture }}" alt="profile image">
+                            {% endif %}
+                        </span>
+                        <button class="btn btn-sm btn--ghost btn--univers-carto pull-right" data-attr="profile_picture">
+                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                </tr>
+            </table>
+            
+        {# </div> #}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+
+/********************************/
+/* suppression de l'utilisateur */
+/********************************/
+$('#delete-user').on('click', function(){
+    swal.fire({
+        title: 'Etes-vous sûr de vouloir supprimer le compte de {{ user.username }} ?',
+        showDenyButton: true,
+        confirmButtonText: 'Supprimer',
+        denyButtonText: "Abandonner",
+        customClass: {
+            confirmButton: 'btn btn-danger',
+            denyButton: 'btn btn-info',
+        },
+        buttonsStyling: false,
+        reverseButtons: true,
+    }).then(function(result){
+        if(result.isConfirmed){
+            window.open(Routing.generate('admin_user_delete', { id : {{ user.id}} }), "_self" )
+        }
+    });
+})
+
+/********************************* */
+/* Bloquer/Débloquer l'utilisateur */
+/********************************* */
+$('input[data-attr="locked"').on('change', (e) => {
+    send('locked', !$(e.target).is(':checked'))
+})
+
+
+
+
+/******************************* */
+/* modifiaction de l'utilisateur */
+/******************************* */
+$('button[data-attr]').on('click', function(){
+    let attr = $(this).data('attr');
+    let title = '';
+    let inputType = 'text';
+    let html = "Entrez la nouvelle valeur";
+    let inputValidator = false;
+
+    switch(attr){
+        case "username":
+            title = "Modifier le nom d'utilisateur";
+            inputValidator = true;
+            break;
+        case "email":
+            title = "Modifier l'email";
+            inputType = "email";
+            break;
+        case 'public_name':
+            title = "Modifier le nom public";
+            inputValidator = true;
+            break;
+        case 'presentation':
+            title = "Modifier le présentation";
+            inputType = "textarea";
+            break;
+        case 'roles':
+            title = "Modifier les roles";
+            break;
+        case 'twitter_account':
+            title = "Modifier le compte Twitter";
+            break;
+        case 'facebook_account':
+            title = "Modifier le compte Facebook";
+            break;
+        case 'linkedin_account':
+            title = "Modifier le compte Linked In";
+            break;
+        case 'profile_picture':
+            title = "Modifier l'image de profil'";
+            inputType = "url";
+            break;
+        default:
+            return;
+    }
+
+    let swalOptions = {};
+    if(attr == 'roles'){
+        let html = "<p>Sélectionnez <b><u><span style='color:red'>TOUS</span></u></b> les roles que l'utilisateur doit avoir</p>"
+            + "<p>Si rien n'est sélectionné, l'utilisateur aura les droits de base</p>"
+        ;
+        {% for key, value in roles %}
+            {% if key != 'ROLE_USER' %}
+                html += '<input type="checkbox" data-role="{{ key }}" id="{{ key }}"> '
+                    +'<label for="{{ key }}">{{ value }}</label><br />'
+                ;
+            {% endif %}
+        {% endfor %}
+
+        swalOptions = {
+            title: "Modifier les roles",
+            html: html,
+            confirmButtonText: "Valider",
+            showCancelButton  :true,
+            cancelButtonText: "Annuler",
+        };
+    }else{
+        swalOptions = {
+            title: title,
+            input: inputType,
+            inputLabel: "Entrez la nouvelle valeur", 
+            confirmButtonText: "Valider",
+            showCancelButton  :true,
+            cancelButtonText: "Annuler",
+        };
+
+        if(inputValidator){
+            swalOptions.inputValidator = (value) => {
+                if (!value) {
+                    return 'Cette valeur ne peut pas être vide';
+                }
+            }
+        }
+    }
+    swal.fire(swalOptions).then((result) => {
+        if(result.isConfirmed){
+            if(attr == 'roles'){
+                let roles = [];
+                document.querySelectorAll('.swal2-popup input:checked').forEach( (checked) => {
+                    roles.push(checked.dataset.role);
+                })
+                send(attr, roles);
+            }else{
+                send(attr, result.value);
+            }
+        }
+    });
+})
+
+function send(attr, value){
+    let url = "{{ path('admin_api_user_attribute_put', { id: user.id , attribute: '__attr__' }) }}";
+    url = url.replace('__attr__', attr);
+
+    $.ajax({
+        url: url,
+        method: 'PUT',
+        data: JSON.stringify({ value: value }),
+        success: function(response){
+            displayNewValue(response.attribute, response.value);
+        },
+        error: function(xhr, ajaxOptions, thrownError){
+            swal.fire({
+                title: 'Erreur',
+                text: xhr.responseText,
+                icon: 'error',
+            });
+        }
+    });
+}
+
+function displayNewValue(attr, value){
+    let msgTitle;
+    $elt = $('span[data-attr="'+attr+'"]');
+
+    $socialNetworks = {
+        twitter_account : 'https://twitter.com/',
+        facebook_account : 'https://www.facebook.com/',
+        linkedin_account : 'https://linkedin.com/in/',
+    };
+
+    switch(attr){
+        case 'profile_picture':
+            $elt.html('');
+            $('<img>').attr('src', value).appendTo($elt);
+            msgTitle = "L'image a été modifiée";
+            break;
+        case 'roles':
+            let roles = '';
+            for(let i in value){
+                roles += getRoleName(value[i]) + ' - ';
+            }
+            $elt.text(roles);
+            msgTitle = "Les roles ont été modifiés";
+            break;
+        case 'locked':
+            msgTitle = "L'utilisateur a été bloqué";
+            $('#alert-user-locked').toggle();
+            if(value === false){
+                msgTitle = "L'utilisateur a été débloqué";
+            }
+            break;
+        case 'twitter_account':
+        case 'facebook_account':
+        case 'linkedin_account':
+            if(!value){
+                $elt.html('');
+                break;
+            }
+            $a = $('<a>')
+                .attr('href', $socialNetworks[attr] + value)
+                .attr('target', '_blank')
+                .text($socialNetworks[attr] + value)
+            ;
+            $elt.html($a);
+            msgTitle = 'La valeur a été modifiée';
+            break;
+        default:
+            $elt.text(value);
+            msgTitle = 'La valeur a été modifiée';
+    };
+
+    swal.fire({
+        icon: 'success',
+        title: msgTitle,
+        timer: 2000,
+    });
+}
+
+function getRoleName(role){
+    let roles = [];
+    {% for key, value in roles %}
+        roles['{{ key }}'] = '{{ value }}'
+    {% endfor %}
+    return roles[role];
+}
+
+</script>
+{% endblock %}

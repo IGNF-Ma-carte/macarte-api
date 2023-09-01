@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+{% form_theme form "@IgnCharte/form/form_theme.html.twig" %}
+
+{% block title %}MaCarte - Créer un compte{% endblock %}
+
+{% set pageTitle = {
+    pageTitleH1 : 'Créer un compte',
+} %}
+
+{% block body %}
+    {% for flashError in app.flashes('verify_email_error') %}
+        <div class="alert alert-danger" role="alert">{{ flashError }}</div>
+    {% endfor %}
+
+    {{ form(form) }}
+
+{% endblock %}

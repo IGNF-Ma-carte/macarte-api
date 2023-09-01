@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello AdminMapController!{% endblock %}
+
+{% set pageTitle = {
+    pageTitleH1 : 'Administration des cartes',
+} %}
+
+{% block breadcrumb %}
+    <div class="container-content container-content--smaller">
+        <nav class="breadcrumb-wrapper" role="navigation" aria-label="Fil d'ariane">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('default_home') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('admin_index') }}">Administration</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Cartes</li>
+            </ol>
+        </nav>
+    </div>
+{% endblock %}
+
+{% block body %}
+
+<div id="result"></div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    maCarteOptions = {
+        server: Routing.generate('admin_api_index', [], true).replace(/^http:/,'https:'),
+    };
+    var user = '{{ user }}';
+    
+</script>
+
+<script  src="{{ asset('build/admin_map_index.js') }}"></script>
+
+{% endblock %} 

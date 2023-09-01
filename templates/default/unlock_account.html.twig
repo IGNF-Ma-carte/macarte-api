@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+{# {% form_theme form "bootstrap_4_horizontal_layout.html.twig" %} #}
+{% form_theme form "@IgnCharte/form/form_theme.html.twig" %}
+
+{% set title = 'Ma Carte' %}
+
+{% set pageTitle = {
+    pageTitleH1 : 'Débloquer mon compte',
+} %}
+
+{% block body %}
+
+<p>Si vous avez été redirigé sur cette page, c'est que trop de tentatives de connexion échouées ont été faites</p>
+<p>Remplissez le formulaire pour réessayer de vous connecter ou <a href="{{ path('app_forgot_password_request') }}">réinitialisez votre mot de passe</a></p>
+<p>Cette fonctionnalité permet de bloquer les tentatives de connexion par des robots</p>
+
+{{ form(form) }}
+{% endblock %}

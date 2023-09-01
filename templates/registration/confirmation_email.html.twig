@@ -1,0 +1,14 @@
+<h1>Bonjour {{ user.username }}</h1>
+{% set homeUrl = absolute_url(path("default_home"))|replace({'http:' : 'https:'}) %}
+{% set enablingUrl = absolute_url(path('app_register_confirm', { 'token' : user.confirmationToken }))|replace({'http:' : 'https:'}) %}
+<p>
+    Vous venez de vous inscrire sur <a href="{{ enablingUrl }}">{{ enablingUrl }}"</a><br>
+    Merci de confirmer votre email en cliquant sur le lien suivant : <br>
+    <a href="{{ enablingUrl }}">{{ enablingUrl }}</a>
+</p>
+<p>Vous pourrez ensuite utiliser les services de l'univers MaCarte</p>
+
+<p>
+    Cordialement<br>
+    L'équipe Macarte
+</p>

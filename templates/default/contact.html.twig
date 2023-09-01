@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+{% form_theme form "@IgnCharte/form/form_theme.html.twig" %}
+
+{% set title = 'Ma Carte' %}
+
+{% if action == 'report' %}
+    {% set pageTitle = {
+        pageTitleH1 : 'Signaler du contenu indésirable',
+    } %}
+{% else %}
+    {% set pageTitle = {
+        pageTitleH1 : 'Nous contacter',
+    } %} 
+{% endif %}
+
+{% block body %}
+
+    {% if action == 'report' %}
+    <p>
+        Vous signalez actuellement du contenu indésirable sur la carte {{ mapID }}. 
+        Ce signalement sera traité dans les plus brefs délais par nos équipes
+    </p>
+    {% else %}
+    <p>
+        N'hésitez pas à contacter l'équipe du site via le formulaire suivant pour toute demande, difficulté d'utilisation, signalement de bug, suggestion d'évolution, message de sympathie... 
+        Une réponse vous sera apportée dans les meilleurs délais.
+    </p>
+    <p>
+        Dans le cas d'une difficulté d'utilisation, reportez-vous au préalable sur la <a href="__faq__">FAQ</a> ou <a href="__tutos__">les tutoriels</a>
+    </p>
+    {% endif %}
+
+    {{ form(form) }}
+
+{% endblock %}
+
+{% block javascripts %}
+<script  src="{{ asset('build/default_contact.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,41 @@
+sonar.md
+.scannerwork
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> symfony/phpunit-bridge ###
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.result.cache
+###< phpunit/phpunit ###
+
+.vscode
+
+###> zircote/swagger-php ###
+#/public/swagger/swagger.json
+#/public/swagger/swagger.yaml
+###< zircote/swagger-php ###
+
+###> lexik/jwt-authentication-bundle ###
+#/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
+
+###> webpack ###
+/node_modules
+#/public/build
+###< webpack ###
+
+###> FOSJsRouting ###
+#/public/js/fos_js_routes.json
+###< FOSJsRouting ###

@@ -1,0 +1,1 @@
+import './scss/default_edugeo.scss'

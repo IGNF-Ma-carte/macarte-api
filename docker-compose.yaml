@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+
+  app:
+    container_name: macarte_api-app
+    image: macarte_api:latest
+    build:
+      context: .
+      args: 
+        - http_proxy
+        - https_proxy
+        - gitlab_read_token=$GITLAB_READ_TOKEN
+    ports:
+      - 8080:8000
+    depends_on:
+      - database
+    #  - file_container
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: pgsql://macarte:macarte@database:5432/macarte?serverVersion=13&charset=utf8
+      USER_EDITOR_DEFAULT_ID: 51213
+
+  database:
+    container_name: macarte-db
+    image: postgis/postgis:13-3.2-alpine
+    environment:
+      POSTGRES_DB: macarte
+      POSTGRES_USER: macarte
+      POSTGRES_PASSWORD: macarte
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U macarte -d macarte"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+       - db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  db-data: 
+    name: macarte-db
+

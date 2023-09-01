@@ -1,0 +1,27 @@
+.articles-2{
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    padding: 3rem;
+    background-color: #f4f6f8;
+    margin-top: 3rem;
+
+    & > div{
+        // background: tomato;
+        width: 30%;
+        margin-top: 10px;
+        text-align: center;
+        .title{
+            border-radius: 50%;
+            width: 5rem;
+            height: 5rem;
+            line-height: 5rem;
+            background: #3993f3;
+            color: white;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+    }
+}

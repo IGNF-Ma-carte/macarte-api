@@ -1,0 +1,90 @@
+{% extends 'base.html.twig' %}
+
+{% set title = 'Ma Carte administration' %}
+
+{% set pageTitle = {
+    pageTitleH1 : 'Administration'
+} %}
+
+{% block breadcrumb %}
+    <div class="container-content container-content--smaller">
+        <nav class="breadcrumb-wrapper" role="navigation" aria-label="Fil d'ariane">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('default_home') }}">Accueil</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Administration</li>
+            </ol>
+        </nav>
+    </div>
+{% endblock %}
+
+{% block body %}
+
+{% set myTeasers = {
+    teaserTitleHn: "h2",
+    teasers3by3: true,
+    teasersContainerSmaller: false,
+    teasers: []
+} %}
+
+{% if is_granted('ROLE_SUPER_ADMIN') %}
+    {% set myTeasers = myTeasers|merge({
+        teasers: myTeasers.teasers|merge([
+            {
+                teaserHorizontal: false,
+                teaserHighlight: false,
+                teaserTitle: "Utilisateurs",
+                teaserLead: 'Gestion des utilisateurs',
+                teaserLink: path('admin_user_index'),
+                teaserLinkText: 'Y aller'
+            },
+            {
+                teaserHorizontal: false,
+                teaserHighlight: false,
+                teaserTitle: "Cartes",
+                teaserLead: 'Gestion des cartes',
+                teaserLink: path('admin_map_index'),
+                teaserLinkText: 'Y aller'
+            },
+            {
+                teaserHorizontal: false,
+                teaserHighlight: false,
+                teaserTitle: "Images",
+                teaserLead: "Gestion de la bibliothèque d'images",
+                teaserLink: path('admin_media_index'),
+                teaserLinkText: 'Y aller'
+            },
+            {
+                teaserHorizontal: false,
+                teaserHighlight: false,
+                teaserTitle: "Themes",
+                teaserLead: "Gestion des thèmes",
+                teaserLink: path('admin_theme_index'),
+                teaserLinkText: 'Y aller'
+            },
+        ])
+    }) %}
+{% endif %}
+
+{% set myTeasers = myTeasers|merge({
+    teasers: myTeasers.teasers|merge([
+        {
+            teaserHorizontal: false,
+            teaserHighlight: false,
+            teaserTitle: "Editorial",
+            teaserLead: "Gestion de l'éditorial",
+            teaserLink: path('admin_article_index'),
+            teaserLinkText: 'Y aller'
+        },
+        {
+            teaserHorizontal: false,
+            teaserHighlight: false,
+            teaserTitle: "Notifications",
+            teaserLead: "Gestion des notifications",
+            teaserLink: path('admin_notif_index'),
+            teaserLinkText: 'Y aller'
+        },
+    ])
+}) %}
+{{ teaser(myTeasers) }}
+
+{% endblock %}

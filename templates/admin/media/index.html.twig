@@ -1,0 +1,552 @@
+{% extends 'base.html.twig' %}
+
+{% set title = 'Ma Carte administration Images' %}
+
+{% set pageTitle = {
+    pageTitleH1 : 'Administration des images',
+} %}
+
+{% block stylesheets %}
+    <style>
+        #result img{
+            max-width: 100px;
+            cursor: pointer;
+        }
+        
+        #autocomplete-proposals {
+            border: 1px dotted #ccc;
+            padding: 3px;
+            position: absolute;
+            background-color: white;
+            z-index: 11;
+            display: none;
+        }
+        #autocomplete-proposals ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        #autocomplete-proposals ul li {
+            padding: 0 5px;
+            margin-bottom: 0;
+            position: initial;
+        }
+        #autocomplete-proposals ul li:hover {
+            background: #eee;
+        }
+    </style>
+{% endblock %}
+
+{% block breadcrumb %}
+    <div class="container-content container-content--smaller">
+        <nav class="breadcrumb-wrapper" role="navigation" aria-label="Fil d'ariane">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('default_home') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('admin_index') }}">Administration</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Images</li>
+            </ol>
+        </nav>
+    </div>
+{% endblock %}
+
+{% block body %}
+
+<div class="container-content container-content--smaller">
+    <div class="js-accordion" data-accordion-prefix-classes="o">
+        <h3 id="accordeon-georoom" class="js-accordion__header">Rechercher</h3>
+        <div class="js-accordion__panel">
+            <div class="wysiwyg">
+                <form>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group ">
+                                <div class="float-target-parent">
+                                    <label for="user-input">Utilisateur (dans login, mail ou nom public)</label>
+                                    <input type="search" id="user-input" class="form-control" value="{{ username }}">
+                                    <div id="autocomplete-proposals"></div>
+                                </div>
+                            </div>
+                            <div class="form-group ">
+                                <div class="float-target-parent">
+                                    <label for="file-input">Le fichier original contient</label>
+                                    <input type="text" id="file-input" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group form-group-custom-control">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="search-invalid">
+                                    <label class="custom-control-label" for="search-invalid">Images invalides uniquement</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <div class="float-target-parent">
+                                    <label for="id-input">Id</label>
+                                    <input type="text" id="id-input" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group ">
+                                <div class="float-target-parent">
+                                    <label for="folder-input">Dossier</label>
+                                    <input type="text" id="folder-input" class="form-control">
+                                </div>
+                            </div>
+                                <button type="button" class="btn btn-active-effect btn-width--md btn--plain btn--univers-carto" id="send-search">Rechercher</button>
+                        </div>
+                    </div>
+                </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+    <div class="wysiwyg">
+        <p><span id="nb-medias"></span> images trouvées</p>
+        <div class="table-responsive ">
+            <table id="result">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Id</th>
+                        <th>Utilisateur</th>
+                        <th>Date de chargement</th>
+                        <th>Nom original du fichier</th>
+                        <th>Dossier</th>
+                        <th>Taille (Mo)</th>
+                        <th>#</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <nav aria-label="Pagination" role="navigation" id="research-pagination">
+        <ul class="pagination justify-content-center align-items-baseline"></ul>
+    </nav>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <img src="{{ path('api_media_view_image', { filename : 'twb942.jpg' })}}">
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+
+{# #################### #}
+{# AFFICHAGE DES MEDIAS #}
+{# #################### #}
+<script>
+var currentPageResearch = 1;
+var limit = 15;
+
+$(document).ready(function(){
+    getMedias();
+})
+
+$('#send-search').on('click', function(){
+    currentPageResearch = 1;
+    getMedias()
+})
+
+function getMedias(){
+    $.ajax({
+        url : "{{ path('admin_api_media_get') }}", 
+        method: 'GET',
+        data : {
+            username : $('#user-input').val(),
+            valid : ! $('#search-invalid').is(':checked'),
+            filename : $('#file-input').val(),
+            folder: $('#folder-input').val(),
+            id : $('#id-input').val(),
+            limit : limit,
+            offset : limit * (currentPageResearch - 1),
+        },
+        success : function(response){
+            $('#nb-medias').text(response.count)
+            displayMedias(response.medias)
+            displayPagination(currentPageResearch, Math.ceil(response.count / response.limit));
+        },
+        error : function(){
+
+        }
+    })
+}
+
+function displayMedias(medias){
+    $tbody = $('#result tbody').html('');
+    for(let i in medias){
+        displayMedia(medias[i], $tbody)
+    }
+}
+
+function displayMedia(media, $domElt){
+    $tr = $('<tr>')
+        .attr('data-media-id', media.id)
+        .attr('data-media-valid', media.valid)
+        .appendTo($domElt)
+    ;
+
+    if(!media.valid){
+        $tr.addClass('table-danger');
+    }
+
+    $tdImg = $('<td>').appendTo($tr);
+    $('<img>')
+        .attr('src', media.thumb_url)
+        .attr('onclick', 'showImgModal("'+media.view_url+'")')
+        .appendTo($tdImg)
+    ;
+
+    $('<td>').text(media.id).appendTo($tr);
+    $('<td>').text(media.owner).appendTo($tr);
+    $('<td>').text(media.uploaded_at.substr(0, 10)).appendTo($tr);
+    $('<td>').text(media.name).appendTo($tr);
+    $('<td>').text(media.folder).appendTo($tr);
+    $('<td>').text( Math.round(media.size / 1024 /1024 *100)/100 ).appendTo($tr);
+    $actionTd = $('<td>').appendTo($tr);
+    $invalidateBtn = $('<button>')
+        .appendTo($actionTd)
+        .addClass('invalidate-img')
+        .attr('onclick', 'invalidateImg('+media.id+')')
+    ;
+    if(media.valid){
+        $invalidateBtn
+            .addClass('btn btn-sm btn-warning')
+            .html('<i class="fa fa-ban" aria-hidden="true"></i>')
+            .attr('title', "Bloquer l'image")
+        ;
+    }else{
+        $invalidateBtn
+            .addClass('btn btn-sm btn-success')
+            .html('<i class="fa fa-check" aria-hidden="true"></i>')
+            .attr('title', "Débloquer l'image")
+        ;
+    }
+
+    $deleteBtn = $('<button>')
+        .appendTo($actionTd)
+        .addClass('delete-media btn btn-sm btn-danger')
+        .attr('onclick', 'deleteImg('+media.id+')')
+        .html('<i class="fa fa-trash" aria-hidden="true"></i>')
+    ;
+}
+
+function displayPagination(currentPage, lastPage ){
+    $nav = $('#research-pagination ul').html('');
+    if(lastPage < 2){
+        return;
+    }
+    if(currentPage > 2){
+        /*
+        <li class="page-item page-first">
+            <a class="page-link" href="#" title="Première page">
+                <span aria-hidden="true" class="icon-double-angle-left"></span>
+                <span class="sr-only">Première page</span>
+            </a>
+        </li>
+        */
+        $li = $('<li>').addClass('page-item').addClass('page-first').appendTo($nav);
+        $a = $('<a>')
+            .addClass('page-link')
+            .attr('href', '#')
+            .attr('title', 'Première page')
+            .appendTo($li)
+            .on('click', function(){
+                currentPageResearch = 1;
+                getMedias();
+            })
+        ;
+        $('<span>').addClass("icon-double-angle-left").attr('aria-hidden', 'true').appendTo($a);
+        $('<span>').addClass("sr-only").text('Première page').appendTo($a);
+    }
+
+    if(currentPage > 1){
+        /*
+        <li class="page-item page-prev">
+            <a class="page-link" href="#" title="Page précédente">
+                <span aria-hidden="true" class="icon-angle-left"></span>
+                <span class="sr-only">Page précédente</span>
+            </a>
+        </li>
+        */
+        $li = $('<li>').addClass('page-item').addClass('page-prev').appendTo($nav);
+        $a = $('<a>')
+            .addClass('page-link')
+            .attr('href', '#')
+            .attr('title', 'Page précédente')
+            .appendTo($li)
+            .on('click', function(){
+                currentPageResearch = currentPageResearch - 1;
+                getMedias();
+            })
+        ;
+        $('<span>').addClass("icon-angle-left").attr('aria-hidden', 'true').appendTo($a);
+        $('<span>').addClass("sr-only").text('Page précédente').appendTo($a);
+    }
+
+    if(currentPage > 1){
+        /*
+            <li class="page-item">
+                <a class="page-link" href="#">1</a>
+            </li>
+        */
+        $li = $('<li>').addClass('page-item').appendTo($nav);
+        $('<a>')
+            .addClass('page-link')
+            .attr('href', '#')
+            .text(currentPage - 1)
+            .appendTo($li)
+            .on('click', function(){
+                currentPageResearch = currentPageResearch - 1;
+                getMedias();
+            })
+        ;
+    }
+    /*
+        <li class="page-item active">
+            <span class="page-link" aria-current="page">
+                2 <span class="sr-only">(page active)</span>
+            </span>
+        </li>
+    */
+    $li = $('<li>').addClass('page-item').addClass('active').appendTo($nav);
+    $('<span>')
+        .addClass('page-link')
+        .attr('aria-current', 'page')
+        .html( currentPage + '<span class="sr-only">(page active)</span>')
+        .appendTo($li)
+    ;
+
+    if(currentPage < lastPage){
+        /*
+            <li class="page-item">
+                <a class="page-link" href="#">3</a>
+            </li>
+        */
+        $li = $('<li>').addClass('page-item').appendTo($nav);
+        $('<a>')
+            .addClass('page-link')
+            .attr('href', '#')
+            .text(currentPage + 1)
+            .appendTo($li)
+            .on('click', function(){
+                currentPageResearch = currentPageResearch + 1;
+                getMedias();
+            })
+        ;
+    }
+    if(currentPage < lastPage){
+        /*
+        <li class="page-item page-next">
+            <a class="page-link" href="#" title="Page suivante">
+                <span aria-hidden="true" class="icon-angle-right"></span>
+                <span class="sr-only">Page suivante</span>
+            </a>
+        </li>
+        */
+        $li = $('<li>').addClass('page-item').addClass('page-prev').appendTo($nav);
+        $a = $('<a>')
+            .addClass('page-link')
+            .attr('href', '#')
+            .attr('title', 'Page précédente')
+            .appendTo($li)
+            .on('click', function(){
+                currentPageResearch = currentPageResearch + 1;
+                getMedias();
+            })
+        ;
+        $('<span>').addClass("icon-angle-right").attr('aria-hidden', 'true').appendTo($a);
+        $('<span>').addClass("sr-only").text('Page précédente').appendTo($a);
+    }
+
+    if(currentPage < lastPage - 1){
+        /*
+        <li class="page-item page-last">
+            <a class="page-link" href="#" title="Dernière page">
+                <span aria-hidden="true" class="icon-double-angle-right"></span>
+                <span class="sr-only">Dernière page</span>
+            </a>
+        </li>
+        */
+        $li = $('<li>').addClass('page-item').addClass('page-last').appendTo($nav);
+        $a = $('<a>')
+            .addClass('page-link')
+            .attr('href', '#')
+            .attr('title', 'Dernière page')
+            .appendTo($li)
+            .on('click', function(){
+                currentPageResearch = lastPage;
+                getMedias();
+            })
+        ;
+        $('<span>').addClass("icon-double-angle-right").attr('aria-hidden', 'true').appendTo($a);
+        $('<span>').addClass("sr-only").text('Dernière page').appendTo($a);
+    }
+}
+</script>
+
+{# ################### #}
+{# GESTION D'UNE IMAGE #}
+{# ################### #}
+<script>
+    function invalidateImg(id){
+        $tr = $('tr[data-media-id="'+id+'"]');
+        let value = $tr.attr('data-media-valid') == 'true';
+
+        let url = "{{ path('admin_api_media_put', {attribute: 'valid', id : '__id__'}) }}";
+        url = url.replace('__id__', id);
+
+
+        {# this._send('PUT', _apiURL+'medias/'+id+'/folder', { value: folder }, callback); #}
+
+        $.ajax({
+            url: url, 
+            method: "PUT",
+            data: JSON.stringify({ value : !value }),
+            processData: false,
+            success: function(response){
+                $tr.toggleClass('table-danger');
+                $tr.attr('data-media-valid', response.value);
+
+                let $btn = $tr.find('.invalidate-img')
+                    .toggleClass('btn-warning')
+                    .toggleClass('btn-success')
+                ;
+
+                if(response.value){
+                    //l'image a été validée
+                    $btn
+                        .html('<i class="fa fa-ban" aria-hidden="true"></i>')
+                        .attr('title', "Bloquer l'image")
+                    ;
+                    swal.fire({
+                        title: "L'image a été validée" ,
+                        timer: 2000,
+                        icon: 'success',
+                    });
+                }else{
+                    $btn
+                        .html('<i class="fa fa-check" aria-hidden="true"></i>')
+                        .attr('title', "Débloquer l'image")
+                    ;
+                    swal.fire({
+                        title: "L'image a été invalidée" ,
+                        timer: 2000,
+                        icon: 'error',
+                    });
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError){
+                swal.fire({
+                    title: xhr.responseText,
+                    icon: 'error',
+                });
+            }
+        })
+    }
+    
+    // affiche l'image en grand
+    function showImgModal(url){
+        $('#modal img').attr('src', url);
+        $('#modal').modal('show');
+    }
+
+    // suppression de l'image
+    function deleteImg(id){
+        swal.fire({
+            title: 'Etes-vous sûr de vouloir supprimer cette image ?',
+            showDenyButton: true,
+            confirmButtonText: 'Supprimer',
+            denyButtonText: "Abandonner",
+            customClass: {
+                confirmButton: 'btn btn-danger',
+                denyButton: 'btn btn-info',
+            },
+            buttonsStyling: false,
+            reverseButtons: true,
+        }).then(function(result){
+            if(result.isConfirmed){
+                let url = "{{ path('admin_api_media_delete', {id : '__id__'}) }}";
+                url = url.replace('__id__', id);
+
+                $.ajax({
+                    url: url, 
+                    method: "DELETE",
+                    success: function(response){
+                        $('tr[data-media-id="'+id+'"]').remove();
+                        swal.fire({
+                            title: "L'image a été supprimée",
+                            timer: 2000,
+                            icon: "success",
+                        });
+                    },
+                    error: function(xhr, ajaxOptions, thrownError){
+                        swal.fire({
+                            title: xhr.responseText,
+                            icon: 'error',
+                        });
+                    }
+                })
+            }
+        });
+    }
+</script>
+
+{# ################# #}
+{# AUTOCOMPLETE USER #}
+{# ################# #}
+<script>
+    $('#user-input').on('keyup', debounce(
+        function(){
+            let val = $(this).val();
+            showAutocompleteResults(val);
+        },
+        300
+    ));
+
+    function showAutocompleteResults(val) {
+        $autocompleteDiv = $("#autocomplete-proposals").html('');
+        if (val == '') {
+            return;
+        }
+        
+        $.ajax({
+            url: "{{ path('admin_api_user_research') }}", //Routing.generate('admin_api_user_research'),
+            data: {
+                query: val,
+                limit: 8,
+            },
+            success: function(response){
+                $autocompleteDiv.show();
+                let list = '';
+                for(let i in response.users){
+                    let user = response.users[i];
+                    list += '<li onclick="selectProposal(\''+user.username+'\')">'+user.username+'</li>';
+                }
+                $autocompleteDiv.html('<ul>'+list+'</ul>');
+            }
+        })
+    }
+
+    function selectProposal(username){
+        $('#user-input').val(username);
+        $("#autocomplete-proposals").hide();
+    }
+
+    function debounce(callback, delay){
+        var timer;
+        return function(){
+            var args = arguments;
+            var context = this;
+            clearTimeout(timer);
+            timer = setTimeout(function(){
+                callback.apply(context, args);
+            }, delay)
+        }
+    }
+</script>
+{% endblock %}

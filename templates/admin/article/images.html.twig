@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+<style>
+    body{
+        font-size: 1.5em!important;
+    }
+    h1{
+        font-size: 5rem!important;
+    }
+    [data-role]{
+        display: none;
+    }
+    a{
+        color: inherit!important;
+    }
+    a:before{
+        content: none!important;
+    }
+</style>
+{% endblock %}
+
+{% set title = 'Ma Carte administration' %}
+
+{% set pageTitle = {
+    pageTitleH1 : "Images de l'éditorial",
+} %}
+
+{% block breadcrumb %}
+    <div class="container-content container-content--smaller">
+        <nav class="breadcrumb-wrapper" role="navigation" aria-label="Fil d'ariane">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('default_home') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('admin_index') }}">Administration</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('admin_article_index') }}">Editorial</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Images</li>
+            </ol>
+        </nav>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="list-medias"></div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    let apiUrl = "{{ url('default_home') }}editorial";
+    maCarteOptions = {
+        api: apiUrl.replace('http://', 'https://')
+    };
+    localStorage.setItem('MC@user', "{{ app.user.username }}");
+</script>
+<script  src="{{ asset('build/admin_article_image.js') }}"></script>
+{% endblock %}

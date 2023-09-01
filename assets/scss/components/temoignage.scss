@@ -1,0 +1,126 @@
+.temoignages {
+    ul {
+        padding-top:8.25rem!important;
+
+        li {
+            padding: 0!important;
+
+            article{
+                background-color: #f4f6f8;
+                padding: 12rem 3rem 8.2rem;
+                position: relative;
+                .image{
+                    width: 16.5rem;
+                    height: 16.5rem;
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    transform: translateY(-50%);
+                    background-color: white;
+                    background-position: center right;
+                    background-size: contain;
+                    background-repeat: no-repeat;
+    
+                    &::before{
+                        content: "\ea5a";
+                        font-family: font-ign;
+                        font-style: normal;
+                        font-weight: 400;
+                        font-variant: normal;
+                        text-transform: none;
+                        line-height: 1;
+                        font-size: inherit;
+                        -webkit-font-smoothing: antialiased;
+                        -moz-osx-font-smoothing: grayscale;
+                        position: absolute;
+                        top: 2rem;
+                        right: -2rem;
+                        width: 5rem;
+                        height: 4rem;
+                        color: #3993f3;
+                        font-size: 4rem;
+                    }
+    
+                }
+
+                .link{
+                    margin-top: 2rem;
+                }
+
+                a.article.button {
+                    color: #091625!important;
+                    text-shadow: none!important;
+                    padding: 0.5rem 0;
+                    text-decoration: none;
+                    font-weight: 500;
+                    position: relative;
+                    margin-top: 2rem;
+                    &:before {
+                        content: "";
+                        position: absolute;
+                        bottom: -0.2rem;
+                        left: 0;
+                        right: 0;
+                        height: 0.2rem;
+                        background-color: #3993f3;
+                        transition: left .25s ease-in-out;
+                        
+                    }
+                    &:hover:before{
+                        left:30%;
+                    }
+                    &:after{
+                        content: "\e91c";
+                        font-family: "ign";
+                        top: 0;
+                        font-size: 1.2rem;
+                    }
+                }
+                
+            }
+        }
+    }
+
+    @media (min-width: 62em){
+        ul{
+            padding-top:0!important;
+
+            li{
+                padding: 0!important;
+
+                article{
+                    padding: 3rem 5rem 3rem 14.2rem;
+                    min-height: 45.8rem;
+                    position: relative;
+                    margin-left: auto;
+                    width: calc(100% - 16.3rem);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+        
+                    .image{
+                        top: 50%;
+                        -webkit-transform: translate(-60%, -50%);
+                        transform: translate(-60%, -50%);
+                        width: 24.5rem;
+                        height: 24.5rem;
+                        text-align: right;
+                    }
+
+                    .link{
+                        margin-top: 3rem;
+                        display: inline;
+                    }
+        
+                    a.article.button {
+                        float: right;
+                    }
+        
+                }
+            }
+        }
+       
+
+    }
+
+}

@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% set title = 'Ma Carte' %}
+
+{% block body %}
+
+<div class="wysiwyg">
+    {% for article in articles %}
+        <div data-mdarticle="{{ article.id }}"></div>
+    {% else %}
+        <h1>Ajouter du contenu pour les CGU</h1>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block required_scripts %}
+<script>
+    /* Table des articles à remplacer dans data-mdarticle en MD */
+    var articles = {};
+    {% for article in articles %}
+        articles[{{ article.id }}] = {{ article.content|json_encode|raw }};
+    {% endfor %}
+</script>
+
+{{ parent() }}
+{% endblock %}

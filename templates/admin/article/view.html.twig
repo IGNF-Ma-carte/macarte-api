@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% set title = 'Ma Carte administration' %}
+
+{% set pageTitle = {
+    pageTitleH1 : article.title,
+} %}
+
+{% block stylesheets %}
+<style>
+    .preview{
+        padding:1em;
+        border: 1px solid black;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="preview md">
+    {% if article.category == 'news' %}
+        <div data-role="teaser-2"> 
+            <div> 
+                <article class="tag"> 
+                    {% if article.tags %}
+                        <div class="backColored tag">{{ article.tags|join(' - ') }}</div> 
+                    {% endif %}
+                    {% if article.imgUrl %}
+                        <div class="picture-teaser"> 
+                            <img src="{{ article.imgUrl }}"> 
+                        </div> 
+                    {% endif %}
+                    <div data-mdarticle="{{ article.id }}"></div>
+                    {% if article.linkUrl %}
+                        <a class="article button" href="{{ article.linkUrl }}">
+                            {% if article.linkText %}
+                                {{ article.linkText }}
+                            {% else %}
+                                En savoir plus
+                            {% endif %}
+                        </a> 
+                    {% endif %}
+                    
+                </article> 
+            </div> 
+        </div>
+    {% else %}
+        <div data-mdarticle="{{ article.id }}"></div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block required_scripts %}
+<script type="text/javascript" src="{{ asset('build/admin_article_view.js') }}"></script> 
+<script>
+    var articles = {};
+    articles[{{ article.id }}] = {{ article.content|json_encode|raw }};
+</script>
+{{ parent() }}
+{% endblock %}

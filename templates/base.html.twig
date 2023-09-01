@@ -1,0 +1,391 @@
+{% extends '@IgnCharte/base.html.twig' %}
+
+{% block required_assets %} 
+    {{ parent() }}
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/font-awesome.css') }}">
+{% endblock %} 
+
+
+{% block main %}
+    {% block alerts %}
+        {% for flashMessage in app.session.flashbag.get('info') %}
+            <div class="alert alert-info">
+                <i class="fa fa-check" aria-hidden="true"></i> {{ flashMessage }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('success') %}
+            <div class="alert alert-success">
+                <i class="fa fa-check" aria-hidden="true"></i> {{ flashMessage }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error') %}
+            <div class="alert alert-danger">
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{ flashMessage }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('danger') %}
+            <div class="alert alert-danger">
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{ flashMessage }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('warning') %}
+            <div class="alert alert-warning">
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i> {{ flashMessage }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('notice') %}
+            <div class="alert alert-info">
+                <i class="fa fa-check" aria-hidden="true"></i> {{ flashMessage }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endblock %}
+
+    {% block body %}{% endblock %}
+{% endblock %}
+
+{% set univers = 'carto'%} 
+{% set siteName = 'MA CARTE' %}
+{% set name = 'IGN' %}
+{% set homeUrl = path('default_home') %}
+{% set assetLogoIgn = asset('bundles/igncharte/img/logo_IGN.png') %}
+{% set megamenuInclude = '/generated/megamenu.html' %}
+
+{% set route = app.request.attributes.get('_route') %}
+
+{# ####################### #}
+{#       MENU LANGUES      #}
+{# aka connexion - profile #}
+{# ####################### #}
+{% set langItems = [] %}
+{% set langItems = langItems|merge([
+    {
+        text: '<i class="fa fa-question-circle-o fa-2x" aria-hidden="true"></i>',
+        link: "__doc__",
+        options: {
+            title: "Afficher l'aide",
+        },
+    },
+    {
+        text: "",
+        link: "",
+        options: {
+            class: "connecting",
+        }
+    },
+]) %}
+
+{# si non connecté, masqué en css #}
+ {% set langItems = langItems|merge([
+    {
+        text: '<i class="fa fi-user-check fa-2x" aria-hidden="true"></i><i class="user-show-menu"></i><span data-attr="public-name"></span>',
+        link: "",
+        options: {
+            class: "connected",
+        }
+    },
+]) %}
+
+{# si connecté, masqué en css #}
+{% set langItems = langItems|merge([
+    {
+        text: '<i class="fa fi-simple-user fa-2x" aria-hidden="true"></i><i class="user-show-menu"></i>',
+        link: "",
+        options: {
+            class: "disconnected",
+        },
+    }
+]) %}
+
+{% set navLangItems  = {
+    navPortails: true,
+    navItems: langItems
+} %}
+
+{# ###################### #}
+{#     MENU PRINCIPAL     #}
+{# ###################### #}
+{% set hasNavLeft = true %}
+
+{% set leftItems = [
+    {
+        text: "Créer une carte",
+        link: '__macarte__',
+    },
+    {
+        text: "Localiser des adresses",
+        link: '__mesadresses__',
+    },
+    {
+        text: "Importer des statistiques",
+        link: '__statistic__',
+    },
+    {
+        text: "Créer une narration",
+        link: '__storymap__',
+    },
+    {
+        text: "Consulter l'atlas",
+        link: "__atlas__",
+    },
+] %}
+{# 
+{% if is_granted('ROLE_EDUGEO_PROF') or is_granted('ROLE_EDUGEO_ELEVE') %}
+    {% set leftItems = leftItems|merge([
+        {
+            text: "Minetest",
+            link: 'https://minetest.ign.fr/' ,
+            target: "_blank"
+        }
+    ]) %}
+{% endif %} #}
+
+{% if is_granted('ROLE_EDITOR') and not(is_granted('ROLE_SUPER_ADMIN')) %}
+    {% set leftItems = leftItems|merge([
+        {
+            text: "Administration - Editorial",
+            link: path('admin_article_index'),
+            isActive : route starts with 'admin_article',
+        },
+        {
+            text: "Administration - Notifications",
+            link: path('admin_notif_index'),
+            isActive : route starts with 'admin_notif',
+        }
+    ]) %}
+{% endif %}
+{% if is_granted('ROLE_SUPER_ADMIN') %}
+    {% set leftItems = leftItems|merge([
+        {
+            text: "Administration",
+            hasChild:[
+                {
+                    text: "Accueil admin",
+                    link: path('admin_index'),
+                    isActive: route starts with 'admin_index'
+                },
+                {
+                    text: "Cartes",
+                    link: path('admin_map_index'),
+                    isActive: route starts with 'admin_map'
+                },
+                {
+                    text: "Utilisateurs",
+                    link: path('admin_user_index'),
+                    isActive:  route starts with 'admin_user'
+                },
+                {
+                    text: "Editorial",
+                    link: path('admin_article_index'),
+                    isActive: route starts with 'admin_article'
+                },
+                {
+                    text: "Images",
+                    link: path('admin_media_index'),
+                    isActive: route starts with 'admin_media'
+                },
+                {
+                    text: "Thèmes",
+                    link: path('admin_theme_index'),
+                    isActive: route starts with 'admin_theme'
+                },
+                {
+                    text: "Notifications",
+                    link: path('admin_notif_index'),
+                    isActive : route starts with 'admin_notif',
+                }
+            ]
+        }
+    ]) %}
+{% endif %}
+
+{% set navLeftItems = {
+    navLeft: true,
+    navItems: leftItems
+} %} 
+
+
+{# ###################### #}
+{#        FOOTER          #}
+{# ###################### #}
+
+{% set footerLegalItems = {
+    footerListInline: true,
+    footerListItems: [
+        {
+            link: path('default_mentions_legales'),
+            text: "Mentions légales"
+        },
+        {
+            link: path('default_cgu'),
+            text: "CGU",
+            options: {
+                title: "Conditions Générales d'utilisation"
+            }
+        },
+        {
+            link: path('default_cookie'),
+            text: "Cookies et Statistiques",
+        },
+        {
+            text: "Versions",
+            link: "__version__",
+        },
+    ]
+} %}
+
+{# {% set footerNewsletter = {
+    title: "Découvrez la lettre d'information IGNactu ",
+    lead: 'Chaque trimestre, recevez par mail le meilleur de nos actualités !',
+    iframeUrl: 'https://app.mailjet.com/widget/iframe/1ZEE/r3E',
+    iframeTitle: "Découvrez la lettre d'information IGNactu"
+} %} #}
+{% set footerNewsletter = {
+    title: "Découvrez la lettre d'information IGNactu ",
+    lead: 'Chaque trimestre, recevez par mail le meilleur de nos actualités !',
+    iframeUrl: 'https://www.ign.fr/publications-de-l-ign/Widget/Footer_IGNActu.html',
+    iframeTitle: "Découvrez la lettre d'information IGNactu"
+} %}
+
+{% set footerContactUs = {
+    link: path('default_contact'),
+    text: "Nous écrire",
+} %}
+
+{% set footerPortailsItems = footerPortailsItems|default({
+    title: 'footer.portals.title'|trans({},'charte'),
+    footerListItems: [
+        {
+            link: "https://www.ign.fr/particuliers",
+            text: 'footer.portals.individual'|trans({},'charte'),
+            icon: "icon-user",
+            target: "_blank"
+        },
+        {
+            link: "https://www.ign.fr/professionnels",
+            text: 'footer.portals.professional'|trans({},'charte'),
+            icon: "icon-pro",
+            target: "_blank"
+        },
+        {
+            link: "https://www.ign.fr/carto",
+            text: 'footer.portals.carto'|trans({},'charte'),
+            icon: "icon-map",
+            target: "_blank"
+        },
+        {
+            link: "https://www.ign.fr/portail",
+            text: 'footer.portals.ign'|trans({},'charte'),
+            icon: "icon-ecosystem",
+            target: "_blank"
+        },
+        {
+            link: "https://www.ign.fr/institut",
+            text: 'footer.portals.institute'|trans({},'charte'),
+            icon: "icon-institut",
+            target: "_blank"
+        },
+    ]
+}) %}
+
+{% set footerQuickAccessItems = {
+    title: 'Accès rapide',
+    footerListItems: [
+        {
+            text: 'Edugéo',
+            link: 'https://www.edugeo.fr/',
+            target: "_blank"
+        },
+        {
+            text: 'Espace collaboratif',
+            link: 'https://espacecollaboratif.ign.fr/',
+            target: "_blank"
+        },
+        {
+            text: 'Géoportail',
+            link: 'https://www.geoportail.gouv.fr/',
+            target: "_blank"
+        },
+        {
+            text: 'Géoservices',
+            link: 'https://geoservices.ign.fr/',
+            target: "_blank"
+        },
+    ] 
+} %}
+
+
+{# ###################### #}
+{#        SCRIPTS         #}
+{# ###################### #}
+
+{% block required_scripts %}
+    {{ parent() }}
+    <script>
+     window.maCarteOptions = {
+        server: "{{ macarte_server }}/",
+    };
+    {% if is_granted('ROLE_EDUGEO_ELEVE') or is_granted('ROLE_EDUGEO_PROF') %}
+        window.maCarteOptions.noTwitter = true;
+    {% endif %}
+    </script>
+
+    <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+    <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
+    <script type="text/javascript" src="{{ asset('build/api_connect.js') }}"></script> 
+
+    <script>
+    window.onload = function(){
+        updateDircomContent( "{{ asset('bundles/igncharte/json/followers.json') }}" )
+    }
+
+    {% if piwik_id != 0 %}
+        /** Piwik Ma carte */
+        var _paq = _paq || [];
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        _paq.push([function () {
+                var self = this;
+                function getOriginalVisitorCookieTimeout() {
+                    var now = new Date(),
+                        nowTs = Math.round(now.getTime() / 1000),
+                        visitorInfo = self.getVisitorInfo();
+                    var createTs = parseInt(visitorInfo[2]);
+                    var cookieTimeout = 33696000; // 13 mois en secondes
+                    var originalTimeout = createTs + cookieTimeout - nowTs;
+                    return originalTimeout;
+                }
+                this.setVisitorCookieTimeout(getOriginalVisitorCookieTimeout());
+            }]);
+        (function () {
+            var u = (("https:" == document.location.protocol) ? "https" : "http") + "://piwik.ign.fr/piwik/";
+            _paq.push(['setTrackerUrl', u + 'piwik.php']);
+            _paq.push(['setSiteId', {{ piwik_id }}]);
+            var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
+            g.type = 'text/javascript';
+            g.defer = true;
+            g.async = true;
+            g.src = u + 'piwik.js';
+            s.parentNode.insertBefore(g, s);
+        })();
+        <noscript><p><img src="http://piwik.ign.fr/piwik/piwik.php?idsite={{ piwik_id }}" style="border:0;" alt="" /></p></noscript>
+    {% endif %}
+    </script>
+{% endblock %}

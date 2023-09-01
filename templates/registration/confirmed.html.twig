@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}MaCarte - Créer un compte{% endblock %}
+
+{% set pageTitle = {
+    pageTitleH1 : 'Validation de compte',
+} %}
+
+{% block body %}
+
+<h2>Bienvenue {{ user.username }}</h2>
+<p>Votre compte a été validé.</p>
+<p>Vous pouvez maintenant utiliser les services proposés par l'univers de MaCarte</p>
+
+<p>Cliquez sur "Création de cartes" puis le type de carte que vous voulez créer</p>
+<p>Si besoin, vous pouvez vous rendre à tout moment dans l'aide</p>
+
+
+{% endblock %}

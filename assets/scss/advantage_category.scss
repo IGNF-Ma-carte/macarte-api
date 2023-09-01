@@ -1,0 +1,39 @@
+// dans admin/article/add_view.html.twig
+.category-advantage{
+    display: flex;
+    flex-flow: row wrap;
+
+    & > * {
+        grid-column: 2;
+    }
+}
+
+.category-advantage .mdBlock {
+    width: calc(50% - 2em);
+    display: inline-block;
+    margin: 1em;
+    padding: 1em;
+    vertical-align: top;
+
+    label{
+        color: #3993f3;
+        font-size: 1.5em;
+        background-color: transparent;
+        padding: 0;
+        margin: 0;
+    }
+    label::before{
+        display: none;
+    }
+    .mdBlockContent {
+        display: block;
+        border: 0;
+        padding: 0;
+        margin: 0;
+        text-align: left;
+    }
+}
+.category-advantage input.mdBlock {
+    display: none;
+}
+

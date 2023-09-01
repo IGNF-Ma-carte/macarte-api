@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+{% form_theme resetForm "@IgnCharte/form/form_theme.html.twig" %}
+
+{% set title = 'Réinitialiser le mot de passe' %}
+
+{% set pageTitle = {
+    pageTitleH1 : 'Réinitialiser le mot de passe',
+} %}
+
+{% block body %}
+    {{ form(resetForm) }}
+{% endblock %}

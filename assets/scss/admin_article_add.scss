@@ -1,0 +1,133 @@
+/* charte */
+body{
+    font-size: 1.5em!important;
+}
+h1{
+    font-size: 5rem!important;
+}
+code{
+    background-color: #eee;
+}
+.ol-ext-dialog.md-help h2{
+    margin-top:0!important;
+}
+[data-role]{
+    display: none;
+}
+nav a{
+    color: inherit!important;
+}
+a:before{
+    content: none!important;
+}
+[data-univers] input[type="text"]{
+    font-size: 1.5rem!important;
+}
+
+/* affichage markdown */
+
+.md-view{
+    min-height: 10rem;
+    border: .1rem solid #dde1e6;
+    margin-bottom: 2rem;
+}
+
+.ol-ext-dialog{
+    &.fullMD{
+        z-index: 2000!important;
+        .ol-content {
+            .md-toolbar{
+                max-width: 32em!important;
+                
+                i.separator{
+                    width: 0!important;
+                }
+                i.add{
+                    width: auto!important;
+                }
+            }
+        }
+    }
+
+    &.help,
+    &.mdedit-media,
+    &.mdedit-attr,
+    &.mdedit-twitter,
+    &.mdedit-icon,
+    &.mc-user-media,
+    &.mdedit-link
+    {
+        z-index: 3000!important;
+    }
+    
+    &.md-help h2{
+        margin-top:0!important;
+    }
+}
+
+.md-toolbar{
+    & > i{
+        width: 1.5em!important;
+        & > i.separator{
+            width: 0!important;
+        }
+        & > i.add{
+            width: auto!important;
+        }
+    }
+}
+
+.md{
+    h1{
+        color: #3993f3!important;
+        font-size: 5rem!important;
+        text-align: center!important;
+        margin-top: 5rem!important;
+        margin-bottom: 3rem!important;
+    }
+    h2{
+        font-size: 3.5rem!important;
+        margin-top: 5rem!important;
+        margin-bottom: 1rem!important;
+    }
+    h3{
+        font-size: 2.5rem!important;
+        margin-top: 5rem!important;
+        margin-bottom: 1rem!important;
+    }
+}
+.mc-upload-media{
+    z-index: 3000;
+}
+
+
+/* affichage formulaire */
+form{
+    textarea{
+        min-height: 10em;
+    }
+    .md-view{
+        min-height: 10em;
+    }
+    .news fieldset{
+        border: 0.1rem solid #dde1e6;
+        padding: 1rem;
+    }
+}
+
+
+/*affichage tags */
+ul.tag {
+    li{
+        font-size : 0;
+    }
+    input{
+        width: 80%;
+        display: inline;
+    }
+    .remove-tag{
+        width:15%;
+        margin-left:2%;
+        display: inline;
+    }
+}

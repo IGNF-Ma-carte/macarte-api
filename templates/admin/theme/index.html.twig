@@ -1,0 +1,135 @@
+{% extends 'base.html.twig' %}
+
+{% set title = 'Ma Carte administration Thèmes' %}
+
+{% set pageTitle = {
+    pageTitleH1 : 'Administration des Thèmes',
+} %}
+
+{% block breadcrumb %}
+    <div class="container-content container-content--smaller">
+        <nav class="breadcrumb-wrapper" role="navigation" aria-label="Fil d'ariane">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('default_home') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('admin_index') }}">Administration</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Thèmes</li>
+            </ol>
+        </nav>
+    </div>
+{% endblock %}
+
+{% block body %}
+<button id="add-theme" class="btn btn-success">Ajouter</button>
+<div class="wysiwyg">
+    <div class="table-responsive ">
+        <table id="result">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Intitulé</th>
+                    <th>#</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for theme in themes %}
+                    <tr data-theme-id="{{ theme.id }}">
+                        <td>{{ theme.id }}</td>
+                        <td>{{ theme.name }}</td>
+                        <td>
+                            <button 
+                                class='btn btn-success btn-sm edit-theme' 
+                                data-theme-id="{{ theme.id }}"
+                                data-theme-name="{{ theme.name }}"
+                            >
+                                <i class="fa fa-pencil-square" aria-hidden="true"></i>
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        $('#add-theme').on('click', function(){
+            swal.fire({
+                title: 'Ajouter un thème ',
+                input: 'text',
+                inputLabel: 'Intitulé',
+            }).then(function(result){
+                if(!result.value){
+                    return;
+                }
+                $.ajax({
+                    method: "POST",
+                    url: Routing.generate('admin_api_theme_add'),
+                    data: {
+                        name: result.value
+                    },
+                    success: function(response){
+                        $tbody = $('#result tbody');
+                        $tr = $('<tr>')
+                            .attr('data-theme-id', response.id)
+                            .appendTo($tbody)
+                        ;
+                        displayTheme(response, $tr);
+                        
+                        swal.fire({
+                            icon: "success",
+                            title: "Le thème a été ajouté",
+                            timer: 1000
+                        });
+                    }
+                });
+            })
+        })
+
+        $('.edit-theme').on('click', function(){
+            let id = $(this).data('theme-id');
+            
+            swal.fire({ 
+                title: 'Modifier le thème ',
+                input: 'text',
+                inputValue: $(this).data('theme-name'),
+                inputLabel: 'Intitulé',
+            }).then(function(result){
+                if(!result.value){
+                    return;
+                }
+                
+                $.ajax({
+                    method: "PUT",
+                    url: Routing.generate('admin_api_theme_edit', {id: id }),
+                    data: {
+                        name: result.value
+                    },
+                    success: function(response){
+                        $tr = $('tr[data-theme-id="'+response.id+'"]');
+                        displayTheme(response, $tr);
+                        
+                        swal.fire({
+                            icon: "success",
+                            title: "Le thème a été modifié",
+                            timer: 1000
+                        });
+                    }
+                });
+            });
+        })
+
+        function displayTheme(theme, $tr){
+            $tr.html('');
+            $('<td>').text(theme.id).appendTo($tr);
+            $('<td>').text(theme.name).appendTo($tr);
+            $('<td>').html(
+                "<button class='btn btn-success btn-sm edit-theme' data-theme-id='"+theme.id+"' data-theme-name='"+theme.name+"'>"
+                + "     <i class='fa fa-pencil-square' aria-hidden='true'></i>"
+                + "</button>"
+            ).appendTo($tr);
+        }
+    </script>
+{% endblock %}

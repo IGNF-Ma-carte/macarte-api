@@ -1,0 +1,185 @@
+{% extends 'base.html.twig' %}
+
+{% set title = 'Ma Carte' %}
+
+{% if titleArticle %}
+    {% set pageTitle = {
+        pageTitleH1 : titleArticle.title,
+        pageTitleLead: '<div data-mdarticle="' ~ titleArticle.id ~ '"></div>',
+        pageTitleBtns: []
+    } %}
+    {% if titleArticle.imgUrl %}
+        {% set pageTitle = pageTitle|merge(
+            { imgSource: titleArticle.imgUrl }
+        ) %}
+    {% endif %}
+{% else %}
+    {% set pageTitle = {
+        pageTitleH1 : 'Bienvenue sur Ma Carte',
+        pageTitleBtns: []
+    } %}
+{% endif %}
+
+
+{# BOUTONS  #}
+{% for article in buttonArticles %}
+    {% set target = '_blank' %}
+    {% if article.linkText starts with 'https://macarte.ign.fr/' %}
+        {% set target = '' %}
+    {% endif %}
+    {% set pageTitle = pageTitle|merge({
+        pageTitleBtns : pageTitle.pageTitleBtns|merge([
+            {
+                link: article.linkUrl,
+                text: article.linkText,
+                styleGhostWhite : false,
+                stylePrimary: true,
+                target: target
+            }
+        ])
+    })
+    
+    %}
+{% endfor %}
+
+
+{% block stylsheets %}
+<style>
+.container-content > h2{
+    margin-top: 1rem;
+}
+</style>
+
+{% endblock %}
+
+{% block body %}
+
+
+{% if advantage1Articles %}
+    <div class="avantage-1">
+    {% for article in advantage1Articles %}
+        <div> 
+            <picture {% if loop.index is odd %}class="right"{% endif %}> 
+                <img src="{{ article.imgUrl }}"> 
+            </picture> 
+            
+            <article> 
+                <div data-mdarticle="{{ article.id }}"></div>
+                {% if article.linkUrl %}
+                <a href="{{ article.linkUrl }}" class="btn--plain btn--primary btn" draggable="false">{{ article.linkText }}</a> 
+                {% endif %}
+            </article> 
+        </div>
+    {% endfor %}
+    </div>
+
+{% endif %}
+
+{% if advantage2Articles %}
+<h2>Les avantages de Ma carte </h2>
+<div class="promote">
+    {% for article in advantage2Articles %}
+        <div data-mdarticle="{{ article.id }}"></div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if newsArticles %}
+ <h2>Actualités</h2>
+
+<div data-role="teaser-2">
+    {% for article in newsArticles %}
+        <div>
+            <article class="tag">
+                {% if article.tags %}
+                    <div class="backColored tag">
+                        {{ article.tags|join(' - ') }}
+                    </div>
+                {% endif %}
+                {% if article.imgUrl %}
+                    <div class="picture-teaser">
+                        <img src="{{ article.imgUrl }}">
+                    </div>
+                {% endif %}
+                <h3>
+                    {{ article.title }}
+                </h3>
+                <div data-mdarticle="{{ article.id }}"></div>
+                {% if article.linkUrl %}
+                    <a class="article button" href="{{ article.linkUrl }}">
+                        {% if article.linkText %}
+                            {{ article.linkText }}
+                        {% else %}
+                            En savoir plus
+                        {% endif %}
+                    </a>
+                {% endif %}
+
+            </article>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if testimonyArticles %}
+<h2>Ils utilisent Ma carte</h2>
+
+<section data-role="carousel" class="temoignages">
+    <ul>
+        {% for article in testimonyArticles %}
+        <li class="temoignage">
+            <article class="">
+                {% if article.imgUrl %}
+                <div class="image" style="background-image:url('{{ article.imgUrl }}')"></div>
+                {# <div class="image"></div> #}
+                {% endif %}
+                <div class="content" data-mdarticle="{{ article.id }}">{{ article.content }}</div>
+                {% if article.linkUrl %}
+                <div class="link">
+                    <a class="article button" href="{{ article.linkUrl }}">
+                        {% if article.linkText %}
+                            {{ article.linkText }}
+                        {% else %}
+                            En savoir plus
+                        {% endif %}
+                    </a>
+                </div>
+                {% endif %}
+            </article>
+        </li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block required_scripts %}
+    <script type="text/javascript" src="{{ asset('build/default_home.js') }}"></script>
+    <script>
+        /* Table des articles a remplacer dans data-mdarticle en MD */
+        var articles = {};
+        {% if titleArticle %}
+        articles[ {{ titleArticle.id }} ] = {{ titleArticle.content|json_encode|raw }};
+        {% endif %}
+        {% for article in buttonArticles %}
+            articles[ {{ article.id }} ] = {{ article.content|json_encode|raw }};
+        {% endfor %}
+        {% for article in newsArticles %}
+            articles[ {{ article.id }} ] = {{ article.content|json_encode|raw }};
+        {% endfor %}
+        {% for article in advantage1Articles %}
+            articles[ {{ article.id }} ] = {{ article.content|json_encode|raw }};
+        {% endfor %}
+        {% for article in advantage2Articles %}
+            articles[ {{ article.id }} ] = {{ article.content|json_encode|raw }};
+        {% endfor %}
+        {% for article in testimonyArticles %}
+            articles[ {{ article.id }} ] = {{ article.content|json_encode|raw }};
+        {% endfor %}
+    </script>
+    {{ parent() }}
+{% endblock %}
+{% block javascripts %}
+
+{% endblock %}

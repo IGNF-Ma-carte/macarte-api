@@ -1,0 +1,147 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+<style>
+    #connection-cas img{
+        max-height: 44px;
+    }
+</style>
+{% endblock %}
+
+{% block title %}Log in!{% endblock %}
+
+{% set pageTitle = {
+    pageTitleH1 : 'Connexion',
+} %}
+
+{% block body %}
+
+<div class="row">
+    <div class="col-6">
+        <h2 style="text-align:center">Vous êtes un particulier ?</h2>
+
+        <div class="o-teasers">
+            <div class="container-content">
+                <div class="o-teasers__grid">
+                    <div class="o-teasers__item">
+                        <article class="o-teaser">
+                            <div class="o-teaser__content">
+                                <h2 class="o-teaser__title">Connectez-vous</h2>
+                                <p class="o-teaser__lead">En renseignant vos identifiants</p>
+                                <form method="post">
+                                    {% if error %}
+                                        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                                    {% endif %}
+
+                                    {% if app.user %}
+                                        <div class="mb-3">
+                                            You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="form-group">
+                                        <div class="float-target-parent">
+                                            <label for="inputUsername">Nom d'utilisateur</label>
+                                            <input type="text" class="form-control" id="inputUsername" value="{{ last_username }}" name="username" required >
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="float-target-parent">
+                                            <label for="inputPassword">Mot de passe</label>
+                                            <input type="password" name="password" class="form-control" id="inputPassword" required>
+                                        </div>
+                                    </div>
+
+                                    <input type="hidden" name="_csrf_token"
+                                        value="{{ csrf_token('authenticate') }}"
+                                    >
+
+                                    {#
+                                        Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
+                                        See https://symfony.com/doc/current/security/remember_me.html
+
+                                        <div class="checkbox mb-3">
+                                            <label>
+                                                <input type="checkbox" name="_remember_me"> Remember me
+                                            </label>
+                                        </div>
+                                    #}
+
+                                    <button  type="submit" class="btn btn-active-effect btn-width--md btn--plain btn--univers-carto">Connexion</button>
+                                    <span class="wysiwyg">
+                                        <a href="{{ path('app_forgot_password_request') }}">Mot de passe oublié ?</a>
+                                    </span>
+                                </form>
+                            </div>
+                        </article>            
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="o-teasers">
+            <div class="container-content">
+                <div class="o-teasers__grid">
+                    <div class="o-teasers__item">
+                        <article class="o-teaser">
+                            <div class="o-teaser__content">
+                                <h2 class="o-teaser__title">Nouveau ?</h2>
+                                <p class="o-teaser__lead">Inscrivez-vous pour profiter de l'ensemble des outils de Ma carte</p>
+                                <p><a href="{{ path('app_register') }}" class="btn btn-active-effect btn-width--md btn--plain btn--univers-carto">Créer un compte</a></p>
+                            </div>
+                        </article>            
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6">
+        <h2 style="text-align:center">Vous êtes enseignant ou élève ?</h2>
+    
+        {% set teaserLumni = {
+            teasers3by3: false,
+            teasersOneHighlight: false,
+            teasersContainerSmaller: false,
+            teasers: [
+                {
+                    teaserHorizontal: false,
+                    teaserHighlight: false,
+                    teaserTitle: "",
+                    teaserLead: '<p><img src="'~asset('images/logo-lumni.svg')~'"/><p>Enseignant ou élève, connectez-vous avec votre compte Lumni</p>',
+                    teaserLink: 'https://'~(lumni_cas ~ "/login?service=" ~ url('app_login_lumni'))|replace({'http://': 'https://'}),
+                    teaserLinkText: 'Se connecter / Créer un compte',
+                },
+            ]
+        } %}
+        {% set teaserGar = {
+            teasers3by3: false,
+            teasersOneHighlight: false,
+            teasersContainerSmaller: false,
+            teasers: [
+                {
+                    teaserHorizontal: false,
+                    teaserHighlight: false,
+                    teaserTitle: "",
+                    teaserLead: '<p><img src="'~asset('images/logo-gar.png')~'"/><p>Connectez-vous grâce au Gestionnaire d\'Accès aux Ressources (GAR) en passant par l\'ENT de votre établissement scolaire</p>',
+                    teaserInfo: [
+                        {
+                            type : "address",
+                            text: "Renseignements auprès de votre établissement scolaire",
+                            icon: "icon-angle-right",
+                        }
+                    ]
+                },
+            ]
+        } %}
+
+        <div id="connection-cas">
+            {{ teaser(teaserLumni) }}
+            {{ teaser(teaserGar) }}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

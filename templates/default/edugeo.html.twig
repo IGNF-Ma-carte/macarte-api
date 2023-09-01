@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% set title = 'Ma Carte' %}
+
+{% if titleArticle %}
+    {% set pageTitle = {
+        pageTitleH1 : titleArticle.title,
+        pageTitleLead: '<div data-mdarticle="' ~ titleArticle.id ~ '"></div>',
+        pageTitleBtns: []
+    } %}
+    {% if titleArticle.imgUrl %}
+        {% set pageTitle = pageTitle|merge(
+            { imgSource: titleArticle.imgUrl }
+        ) %}
+    {% endif %}
+{% else %}
+    {% set pageTitle = {
+        pageTitleH1 : 'Bienvenue sur Ma Carte - Edugeo',
+        pageTitleBtns: []
+    } %}
+{% endif %}
+
+{# BOUTONS  #}
+{% for article in buttonArticles %}
+    {% set target = '_blank' %}
+    {% if article.linkText starts with 'https://macarte.ign.fr/' %}
+        {% set target = '' %}
+    {% endif %}
+    {% set pageTitle = pageTitle|merge({
+        pageTitleBtns : pageTitle.pageTitleBtns|merge([
+            {
+                link: article.linkUrl,
+                text: article.linkText,
+                styleGhostWhite : false,
+                stylePrimary: true,
+                target: target
+            }
+        ])
+    })
+    
+    %}
+{% endfor %}
+
+
+{% block body %}
+<div class="wysiwyg">
+    {% for article in articles1 %}
+        <div data-mdarticle="{{ article.id }}"></div>
+    {% endfor %}
+
+{% if articles2 is not empty %}
+    <div class="articles-2">
+        {% for article in articles2 %}
+        <div>
+            <div class="title">{{ article.title }}</div>
+            <div data-mdarticle="{{ article.id }}"></div>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+</div>
+{% endblock %}
+
+{% block required_scripts %}
+    <script type="text/javascript" src="{{ asset('build/default_edugeo.js') }}"></script>
+    <script>
+        /* Table des articles a remplacer dans data-mdarticle en MD */
+        var articles = {};
+        {% if titleArticle %}
+        articles[ {{ titleArticle.id }} ] = {{ titleArticle.content|json_encode|raw }};
+        {% endif %}
+        {% for article in buttonArticles %}
+            articles[ {{ article.id }} ] = {{ article.content|json_encode|raw }};
+        {% endfor %}
+        {% for article in articles1 %}
+            articles[ {{ article.id }} ] = {{ article.content|json_encode|raw }};
+        {% endfor %}
+        {% for article in articles2 %}
+            articles[ {{ article.id }} ] = {{ article.content|json_encode|raw }};
+        {% endfor %}
+    </script>
+    {{ parent() }}
+{% endblock %}
+

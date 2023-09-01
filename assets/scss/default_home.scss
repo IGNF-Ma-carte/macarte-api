@@ -1,0 +1,118 @@
+@import './components/temoignage.scss';
+
+.goals, .promote {
+    h1, h2, h3, h4, h5, h6{
+        color: #3993f3;
+    }
+}
+
+.promote{
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+    padding: -3rem 0;
+
+    div{
+        margin-bottom: 6rem;
+        text-align: center;
+        background-color: #e1eefd;
+        padding: 5rem 2.3rem 5.5rem;
+        width: 100%;
+
+
+        @media (min-width: 36em){
+            flex: 1 0 calc(33.33333% - 6rem);
+            width: calc(33.33333% - 6rem);
+            max-width: calc(33.33333% - 6rem);
+            margin: 3rem;
+            align-items: center;
+        }
+
+    }
+}
+
+.avantage-1{
+    width: 130rem;
+    max-width: 100%;
+    margin: auto;
+    box-sizing: border-box;
+
+    & > div {
+        clear: both;
+        display: flex;
+        align-items: center;
+        margin: 2em 0 2em;
+        padding: 0;
+
+        & > * {
+            width: 40%;
+            padding: 0 2em;
+            vertical-align: middle;
+            box-sizing: border-box;
+            flex: 0 0 auto;
+            font-size: 1.2em;
+            display: inline-block;
+        }
+
+        picture {
+            text-align: center;
+            width: 60%;
+
+
+            &.right {
+                order: 2;
+            }
+
+            img {
+                max-width: 100%;
+                box-shadow: 1px 1px 10px rgba(0,0,0,.4);
+                transition: .5s;
+
+                &:hover {
+                    transform: scale(1.05);
+                }
+            }
+            
+        }
+
+        .btn {
+            display: block;
+            margin: 2rem auto;
+            width: fit-content;
+        }
+    }
+      
+    @media (max-width: 850px) {
+        & > div {
+            display: inline-block;
+
+            & > * {
+                width: 100%!important;
+                text-align: center;
+                padding: 0 1em;
+            }
+
+            & > article {
+                margin-top: 2rem;
+            }
+
+            picture.right {
+                order: unset;
+            }
+
+        }
+        // & > div > * {
+        //     width: 100%!important;
+        //     text-align: center;
+        //     padding: 0 1em;
+        // }
+        // & > div > article {
+        //     margin-top: 2rem;
+        // }
+        // & > div picture.right {
+        //     order: unset;
+        // }
+    }
+      
+}

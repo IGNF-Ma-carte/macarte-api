@@ -1,0 +1,93 @@
+security:
+    # https://symfony.com/doc/current/security/authenticator_manager.html
+    enable_authenticator_manager: true
+    # https://symfony.com/doc/current/security.html#c-hashing-passwords
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+        App\Entity\User:
+            algorithm: sha512
+
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    providers:
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: username
+        app_user_provider_refresh_jwt_token:
+            entity:
+                class: App\Entity\User
+                property: id
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        api_token_refresh:
+            pattern: ^/api/token/refresh$
+            stateless: true
+            user_checker: App\Security\UserChecker
+            
+        api_login:
+            pattern: ^/api/login$
+            stateless: true
+            json_login:
+                check_path: /api/login # or api_login_check as defined in config/routes.yaml
+                # success_handler: lexik_jwt_authentication.handler.authentication_success
+                success_handler: app.lexik_jwt_authentication.handler.authentication_success
+                # failure_handler: lexik_jwt_authentication.handler.authentication_failure
+                failure_handler: app.lexik_jwt_authentication.handler.authentication_failure
+                provider: app_user_provider
+            user_checker: App\Security\UserChecker
+
+        api:
+            pattern:   ^/api
+            stateless: true
+            # jwt: ~
+            jwt: 
+                provider: app_user_provider
+                authenticator: app.jwt_authenticator
+            user_checker: App\Security\UserChecker
+
+        main:
+            lazy: true
+            custom_authenticator:
+                - App\Security\LoginFormAuthenticator
+                - App\Security\LumniAuthenticator
+                - App\Security\GarAuthenticator
+            provider: app_user_provider
+            user_checker: App\Security\UserChecker
+            logout:
+                path: app_logout
+                # where to redirect after logout
+                # target: app_any_route
+
+        # main:
+        #     lazy: true
+        #     provider: app_user_provider
+
+            # activate different ways to authenticate
+            # https://symfony.com/doc/current/security.html#firewalls-authentication
+
+            # https://symfony.com/doc/current/security/impersonating_user.html
+            # switch_user: true
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+
+    role_hierarchy:
+        ROLE_EDITOR: ROLE_USER
+        ROLE_ADMIN: ROLE_EDITOR
+        ROLE_SUPER_ADMIN: ROLE_ADMIN
+    access_control:
+        - { path: ^/admin$, roles: ROLE_EDITOR }
+        - { path: ^/admin/editorial, roles: ROLE_EDITOR }
+        - { path: ^/admin/, roles: ROLE_SUPER_ADMIN }
+        - { path: ^/api/edugeo/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/token/refresh$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/logout$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/me$, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api, methods: [POST, PUT, PATCH, DELETE], roles: IS_AUTHENTICATED_FULLY} 
+        - { path: ^/, roles: PUBLIC_ACCESS }
+

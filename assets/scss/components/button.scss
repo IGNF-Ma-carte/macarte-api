@@ -1,0 +1,52 @@
+.btn.disabled{
+    filter: grayscale(100%);
+    pointer-events: none;
+    opacity: .7;
+}
+.btn-danger {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+    :hover{
+        color: #fff;
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+}
+
+.btn-success {
+    color: #fff;
+    background-color: #28a745;
+    border-color: #28a745;
+    :hover{
+        color: #fff;
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+}
+
+.btn-warning {
+    color: #212529;
+    background-color: #ffc107;
+    border-color: #ffc107;
+    :hover{
+        color: #fff;
+        background-color: #e0a800;
+        border-color: #d39e00;
+    }
+}
+
+.btn-info {
+    color: #fff;
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+    :hover{
+        color: #fff;
+        background-color: #138496;
+        border-color: #117a8b;
+    }
+}
+
+.btn-sm{
+    padding: 0.55rem;
+}

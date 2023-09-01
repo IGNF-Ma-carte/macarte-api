@@ -1,0 +1,124 @@
+{% extends 'base.html.twig' %}
+{% form_theme form "@IgnCharte/form/form_theme.html.twig" %}
+
+{% if article is defined %}
+    {% set h1 = 'Modifier "' ~ article.title ~ '"' %}
+{% else %}
+    {% set h1 = 'Ajouter un article' %}
+{% endif %}
+
+{% block breadcrumb %}
+    <div class="container-content container-content--smaller">
+        <nav class="breadcrumb-wrapper" role="navigation" aria-label="Fil d'ariane">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('default_home') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('admin_index') }}">Administration</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('admin_article_index') }}">Editorial</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ h1 }}</li>
+            </ol>
+        </nav>
+    </div>
+{% endblock %}
+
+{% set title = 'Ma Carte - administration' %}
+
+
+{% set pageTitle = {
+    pageTitleH1 : h1,
+} %}
+
+{% block body %}
+
+{{ form_start(form) }}
+    <div class="row">
+        <div class="col-6">
+            {{ form_row(form.category) }}
+            {{ form_row(form.status) }}
+            {{ form_row(form.title) }}
+        </div>
+        <div class="col-4">
+            <label>Image d'illustration</label>
+            <p>
+                "FAQ", "Tutoriel" : icone précédant le titre de l'article
+            </p>
+            {{ form_row(form.imgUrl) }}
+        </div>
+        <div class="col-2">
+            <a 
+                href="{{ path('admin_article_images') }}" 
+                class="btn--plain btn--primary btn" 
+                target="_blank"
+            >
+                Gérer les images de l'éditorial
+            </a>
+        </div>
+    </div>
+
+    {{ form_label(form.content) }}
+    {{ form_widget(form.content) }}
+    <p>Pour modifier la taille des images : <code>!(img_rnt981 <b>20x30</b>)</code> donnera largeur = 20px et hauteur = 30px<br>
+        Catégories "<b>Mentions légales</b>", "<b>CGU</b>", "<b>Cookie et statistique</b>" : 
+        inclure le titre de la page dans le contenu de l'article en position 1 
+        (de préférence dans un article contenant uniquement le titre et l'introduction)<br>
+    </p>
+
+    <label>Visualisation</label>
+    <div class="md-view md category-advantage"></div>
+
+    {{ form_row(form.linkUrl) }}
+    {{ form_row(form.linkText) }}
+
+    {{ form_label(form.tags) }}
+
+    <div class="form-group form-group-custom-control">
+        <fieldset>
+            <legend class="col-form-label required">Tags</legend>
+            <ul class="tag"
+                data-index="{{ form.tags|length > 0 ? form.tags|last.vars.name + 1 : 0 }}"
+                data-prototype='{{ form_widget(form.tags.vars.prototype)|e('html_attr') }}'
+            >
+            {% for tagField in form.tags %}
+                <li>
+                    {{ form_errors(tagField) }}
+                    {{ form_widget(tagField) }}<div class="remove-tag">
+                        <button type="button" class="btn btn-sm btn-danger remove-existing-tag" title="Enlever ce tag">
+                            <i class="fa fa-minus" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </li>
+            {% endfor %}
+            </ul>
+            <button 
+                type="button" 
+                class="add_item_link btn btn-sm btn-info" 
+                data-collection-holder-class="tag"
+                title="Ajouter un tag"
+            >
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </fieldset>
+    </div>
+    {{ form_rest(form) }}
+    
+{{ form_end(form) }}
+
+
+{% endblock %}
+
+
+{% block javascripts %}
+<script>
+{% if category is defined and category %}
+    $('#category').val('{{category}}')
+{% endif %}
+
+    let apiUrl = "{{ url('default_home') }}editorial";
+    maCarteOptions = {
+        server: "{{ url('default_home') }}".replace('http://', 'https://'),
+        api: apiUrl.replace('http://', 'https://')
+    };
+
+    localStorage.setItem('MC@user', "{{ app.user.username }}");
+</script>
+<script  src="{{ asset('build/admin_article_add.js') }}"></script>
+{% endblock %}

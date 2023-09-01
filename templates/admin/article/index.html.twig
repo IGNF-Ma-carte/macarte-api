@@ -1,0 +1,162 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+<style>
+.categories{
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    vertical-align: top;
+    color: #788089;
+    border-right: 1px solid #dde1e6 ;
+    margin-right: 1em;
+    width: calc(20% - 1em);
+}
+.categories li{
+    text-align: right;
+    padding: 1.5rem 3rem 1.5rem 0;
+    cursor: pointer;
+    font-weight: 800;
+    border-right: 5px solid transparent;
+}
+.categories li.selected {
+    border-right: 5px solid #3993f3;
+    color: #3993f3;
+}
+
+.articles{
+    position: relative;
+    display: inline-block;
+    width: 79%;
+    vertical-align: top;
+}
+.articles .hide{
+    display:none;
+}
+.articles th.actions{
+    min-width: 27rem;
+}
+
+</style>
+{% endblock %}
+
+{% set title = 'Ma Carte administration' %}
+
+{% set pageTitle = {
+    pageTitleH1 : "Administration de l'éditorial",
+} %}
+
+{% block body %}
+
+<p>
+    <a href="{{ path('admin_article_add') }}" class="btn--plain btn--primary btn">Ajouter un article</a>
+    <a href="{{ path('admin_article_images') }}" class="btn--plain btn--primary btn" target="_blank">Gérer les images de l'éditorial</a>
+</p>
+
+{% if currentCategory is null %}
+    {% set currentCategory = categoriesName|first %}
+{% endif %}
+
+<div class="categories">
+    <ul>
+    {% for value, key in categoriesName %}
+        <li 
+            data-category="{{ key }}"
+            class="{% if currentCategory == key %}selected{% endif %}"
+        >{{ value }}</li>
+    {% endfor %}
+    </ul>
+</div>
+<div class="articles">
+    {% for value, key in categoriesName %}
+    <div class="{% if key != currentCategory %}hide{% endif %}" data-category="{{ key }}">
+        <h2>
+            {{ value }}
+            <a href="{{ path('admin_article_add', { category: key }) }}" 
+                class="btn btn-sm btn--plain btn--primary " 
+                title="Ajouter un article dans {{ value }}"
+            >
+                <i class="fa fa-plus-circle" aria-hidden="true"></i>
+            </a>
+        </h2>
+        <div class="wysiwyg">
+            {% include "/admin/article/articles_list.html.twig" with { articles : articles[key], category: key } %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %} 
+
+{% block javascripts %}
+<script>
+    /*****************************/
+    /* Affichage d'une categorie */
+    /*****************************/
+    document.querySelectorAll('.categories li').forEach( (li) => {
+        li.addEventListener('click', (e) => {
+            const category = li.dataset.category;
+            document.querySelectorAll('.categories li').forEach( (li2) => {
+                li2.classList.remove('selected');
+            })
+            document.querySelector('.categories li[data-category="'+category+'"').classList.add('selected');
+
+            document.querySelectorAll('.articles [data-category]').forEach( (div) => {
+                div.classList.add('hide');
+            })
+            document.querySelector('.articles [data-category="'+category+'"').classList.remove('hide');
+        })
+    })
+
+    /*****************************/
+    /* Clic sur bouton supprimer */
+    /*****************************/
+    document.querySelectorAll('button.btn-danger').forEach((button) => {
+        button.addEventListener('click', (e) => {
+            const id = button.closest('[data-id]').dataset.id;
+            const title = button.closest('[data-title]').dataset.title;
+            swal.fire({
+                title: 'Supprimer l\'article "' + title + '" ?',
+                text: "Cette action est irréversible",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Oui',
+                denyButtonText: 'Non',
+            })
+            .then( result => {
+                if(result.value){
+                    let url = "{{ path('admin_article_remove', {id: '__id__'}) }}";
+                    window.location.href = url.replace('__id__', id);
+                }
+            });
+        });
+    });
+
+    /**************************/
+    /* Modification de statut */
+    /**************************/
+    document.querySelectorAll('.change-status').forEach( (select) => {
+        select.addEventListener('change', (e) => {
+            const id = select.closest('[data-id]').dataset.id;
+            const title = select.closest('[data-title]').dataset.title;
+            const option = document.querySelector('.change-status option[value="' + select.value + '"]');
+
+            swal.fire({
+                title: 'Modifier le statut de "' + title + '" ?',
+                text: 'Le statut de cet article sera "' + option.text + '", vous pourrez le modifier à tout moment',
+                //icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Oui',
+                denyButtonText: 'Non',
+            })
+            .then( result => {
+                if(result.value){
+                    let url = "{{ path('admin_article_status', {id: '__id__', status: '__status__'}) }}";
+                    url = url.replace('__id__', id).replace('__status__', select.value );
+                    window.location.href = url;
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

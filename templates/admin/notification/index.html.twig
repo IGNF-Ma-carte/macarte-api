@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello AdminNotificationController!{% endblock %}
+
+{% set pageTitle = {
+    pageTitleH1 : "Administration des notifications",
+} %}
+
+{% block body %}
+<div class="row">
+    <div class="col-6">
+        <a href="{{ path('admin_notif_add') }}" class="btn--plain btn--primary btn">Ajouter une notification</a>
+    </div>
+    <div class="col-6">
+        <div class="wysiwyg">
+            <table>
+                <tr>
+                    <td class="table-danger">Danger</td>
+                    <td class="table-warning">Avertissement</td>
+                    <td class="table-info">Information</td>
+                    <td class="table-success">Succès</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="wysiwyg">
+    <table>
+        <head>
+            <th>Id</th>
+            <th>Description</th>
+            <th>Dates</th>
+            <th>Portée (Répet.)</th>
+            <th>MAJ</th>
+            <th>#</th>
+        </head>
+        <body>
+        {% for notif in notifs %}
+            <tr class="table-{{ notif.type}}">
+                <td>{{ notif.id }}</td>
+                <td>{{ notif.description }}</td>
+                <td>Du {{ notif.showFrom|date('Y-m-d') }} <br> Au {{ notif.showUntil|date('Y-m-d') }} </td>
+                <td>{{ notif.scope }} ({{ notif.repeatability }})</td>
+                <td>{{ notif.updatedBy.username }} <br> le {{ notif.updatedAt|date('Y-m-d') }}</td>
+                <td>
+                    <a 
+                        href="{{ path('admin_notif_remove', { id : notif.id }) }}" 
+                        class="btn btn-sm btn-danger"
+                    ><i class="fa fa-trash" aria-hidden="true"></i></a>
+                </td>
+            </tr>
+        {% endfor %}
+        </body>
+    </table>
+</div>
+{% endblock %}

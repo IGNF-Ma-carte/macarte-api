@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+{% form_theme form "@IgnCharte/form/form_theme.html.twig" %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css">
+<style>
+.qs-datepicker-container{
+    font-size: 1.5rem;
+    position: initial;
+}
+#dates{
+    margin-bottom: 1.5rem;
+}
+#showFrom, #showUntil{
+    pointer-events: none;
+}
+</style>
+{% endblock %}
+
+{% if notif is defined %}
+    {% set h1 = 'Modifier la notification "' ~ notif.id ~ '"' %}
+{% else %}
+    {% set h1 = 'Ajouter une notification' %}
+{% endif %}
+
+{% block breadcrumb %}
+    <div class="container-content container-content--smaller">
+        <nav class="breadcrumb-wrapper" role="navigation" aria-label="Fil d'ariane">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('default_home') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('admin_index') }}">Administration</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('admin_notif_index') }}">Editorial</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ h1 }}</li>
+            </ol>
+        </nav>
+    </div>
+{% endblock %}
+
+{% set title = 'Ma Carte - administration' %}
+
+{% set pageTitle = {
+    pageTitleH1 : h1,
+} %}
+
+{% block body %}
+    {{ form_start(form) }}
+        <div class="row">
+            <div class="col-6">
+                {{ form_row(form.type) }}
+            </div>
+            <div class="col-6">
+                {{ form_row(form.scope) }}
+            </div>
+        </div>
+        <div class="row" id="dates">
+            <div class="col-6">
+                {{ form_row(form.showFrom) }}
+            </div>
+            <div class="col-6">
+                {{ form_row(form.showUntil) }}
+            </div>
+        </div>
+    {{ form_end(form) }}
+{% endblock %}
+
+{% block javascripts %}
+{# <script  src="{{ asset('build/admin_notif_add.js') }}"></script> #}
+<script src="https://unpkg.com/js-datepicker"></script>
+<script>
+const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Decembre']
+
+const start = datepicker('#showFrom', {
+    alwaysShow: true,
+    id: 1,
+    customDays: days,
+    customMonths: months,
+    startDay: 1, 
+    formatter: (input, date, instance) => {
+        const offset = instance.dateSelected.getTimezoneOffset();
+        const date1 =  new Date(instance.dateSelected.getTime() - (offset*60*1000))
+        input.value = date1.toISOString().split('T')[0]
+    },
+})
+const end = datepicker('#showUntil', {
+    alwaysShow: true,
+    id: 1,
+    customDays: days,
+    customMonths: months,
+    startDay: 1, 
+    formatter: (input, date, instance) => {
+        const offset = instance.dateSelected.getTimezoneOffset();
+        const date1 =  new Date(instance.dateSelected.getTime() - (offset*60*1000))
+        input.value = date1.toISOString().split('T')[0]
+    },
+})
+
+</script>
+{% endblock %}

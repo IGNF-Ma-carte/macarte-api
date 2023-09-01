@@ -1,0 +1,13 @@
+<p>Bonjour</p>
+
+<p>Pour réinitialiser votre mot de passe, veuillez visiter le lien suivant : </p>
+<a href="{{ url('app_reset_password', {token: resetToken.token}) }}">{{ url('app_reset_password', {token: resetToken.token}) }}</a>
+
+<p>Pour vous connecter, il vous faut entrer votre nom d'utilisateur : <b>{{ user.username }}</b> et le mot de passe que vous allez renseigner</p>
+
+<p>Ce lien expirera dans {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.</p>
+
+<p>
+    Cordialement<br />
+    L'équipe Ma Carte - IGN
+</p>
